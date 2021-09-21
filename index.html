@@ -1,9 +1,45 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 	<head>
 		<meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        <link href="source/css/index.css" rel="stylesheet">
+        <title>Simulateur d'ordonanceur</title>
 	</head>
-	<body>
-		<script src="script.js"></script>
+	<body class="bg-gray-100">
+        <header class="mb-4 md:mb-7 xl:mb-10">
+            <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-blue-500 text-gray-50">Simulateur d'ordonanceur</h1>
+        </header>
+
+        <main class="container mx-auto text-center text-xl">
+
+            <!-- Form -->
+
+            <section class="mb-5">
+                <form class="mb-5">
+                    <div class="field mb-5">
+                        <label for="process-number">Nombre de processus<span class="text-red-700">*</span> :</label>
+                        <input type="number" id="process-number" class="w-20 ml-5 text-center">
+                    </div>
+                    <div class="field mb-5">
+                        <label for="quantum-number">Nombre de quantums par passage<span class="text-red-700">*</span> :</label>
+                        <input type="number" id="quantum-number" class="w-20 ml-5 text-center">
+                    </div>
+                    <div class="field mb-5">
+                        <label for="context-change-duration">Durée de changement de contexte<span class="text-red-700">*</span> :</label>
+                        <input type="number" id="context-change-duration" class="w-20 ml-5 text-center">
+                    </div>
+                </form>
+                <button onclick="showResults()" class="bg-blue-500 rounded text-gray-50 py-2 px-4">Charger</button>
+            </section>
+
+            <!-- Results -->
+
+            <section id="results"></section>
+        </main>
 	</body>
 </html>
+
+<script src="script.js"></script>

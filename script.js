@@ -1,63 +1,84 @@
-// Methods
+// Load processes
 
-function loadProcesses(current){
+function loadProcesses(current, quantumPerRound, contextChangeDuration){
 	// Substract the quantum value to the current process
 
-	// console.log(current)
-
-	for(let i = 0; i < quantum; i++){
+	for(let i = 0; i < quantumPerRound; i++){
 		if(processes[current] > 0){
 			processes[current]--
-			console.log(current, processes)
 			totalTime++
 		}
 	}
 
-	// Remove loaded processes and continue load them
+    // If Processes are still loading
 
 	if(processes.length !== 0){
+
+        // Remove process if it is loaded
+
 		if(processes[current] === 0){
 			processes.splice(current, 1)
-			loadProcesses(current + 1)
+
+            // Go back to the first process if we are at the end
+
+            if(current === processes.length){
+                current = 0
+            }
 		}
-		else{
+        
+        else{
+            // Go back to the first process if we are at the end
 
-			// Go back to the first process if we are at the end
+            if(current === processes.length - 1){
+                current = 0
+            }
 
-			if(current === processes.length - 1){
-				loadProcesses(0)
-			}
+            // Or keep going
 
-			// Or keep going
+            else{
+                current++
+            }
+        }
 
-			else{
-				loadProcesses(current + 1)
-			}
-		}
+        totalTime += contextChangeDuration
 
-		// console.log(processes)
+        loadProcesses(current, quantumPerRound, contextChangeDuration)
 	}
 }
 
-function createProcesses(){
+// Create processes
+
+function createProcesses(processesNumber){
 	for(let i = 0; i < processesNumber; i++){
 		processes.push(Math.round((Math.random() * processesDurationMax) + processesDurationMin))
 	}
 }
 
+// Show results after clicking button
+
+function showResults(){
+    let processesNumber = parseInt(document.getElementById('process-number').value)
+    let quantumPerRound = parseInt(document.getElementById('quantum-number').value)
+    let contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
+
+    if(processesNumber !== '' && quantumPerRound !== '' && contextChangeDuration !== ''){
+        totalTime = 0
+        processes = []
+
+        createProcesses(processesNumber)
+        loadProcesses(0, quantumPerRound, contextChangeDuration)
+
+        let result = document.createElement('p')
+        result.innerText = 'Terminé en ' + totalTime + ' quantums (' + processesNumber + ' processus - ' + quantumPerRound + ' quantums par passage - ' + contextChangeDuration + ' de changement de contexte)'
+        document.getElementById('results').append(result)
+    }
+}
+
 // Variables
 
-var quantum = 4
-var contextChange = 1
-var totalTime = 0
-var processesNumber = 4;
-var processesDurationMax = 15;
-var processesDurationMin = 1;
-var processes = []
+let totalTime = 0
 
-// Main program
+let processesDurationMin = 1;
+let processesDurationMax = 15;
 
-createProcesses()
-console.log(processes)
-loadProcesses(0)
-// console.log(totalTime)
+let processes = []
