@@ -49,9 +49,16 @@ function loadProcesses(current, quantumPerRound, contextChangeDuration){
 // Create processes
 
 function createProcesses(processesNumber, processesDurationMin, processesDurationMax){
+    averageProcessDuration = 0
+
 	for(let i = 0; i < processesNumber; i++){
-		processes.push(Math.round((Math.random() * processesDurationMax) + processesDurationMin))
+        let duration = Math.round(Math.random() * (processesDurationMax - processesDurationMin) + processesDurationMin)
+
+        processes.push(duration)
+        averageProcessDuration += duration
 	}
+
+    averageProcessDuration = (averageProcessDuration/processesNumber).toFixed(2)
 }
 
 // Show results after clicking button
@@ -61,18 +68,21 @@ function showResults(){
     let quantumPerRound = parseInt(document.getElementById('quantum-number').value)
     let contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
     let processesDurationMin = parseInt(document.getElementById('processes-load-min').value)
-    let processesDurationMax = parseInt(document.getElementById('processes-load-min').value)
+    let processesDurationMax = parseInt(document.getElementById('processes-load-max').value)
 
-    if(processesNumber !== '' && quantumPerRound !== '' && contextChangeDuration !== ''){
+    // If all fields are filled
+
+    if (!isNaN(processesNumber) && !isNaN(quantumPerRound) && !isNaN(contextChangeDuration) && !isNaN(processesDurationMin) && !isNaN(processesDurationMax)){
+
+        // Reset variables
+
         totalTime = 0
         processes = []
 
+        // Create and load processes
+
         createProcesses(processesNumber, processesDurationMin, processesDurationMax)
         loadProcesses(0, quantumPerRound, contextChangeDuration)
-
-        let result = document.createElement('p')
-        result.innerText = 'Terminé en ' + totalTime + ' quantums (' + processesNumber + ' processus - ' + quantumPerRound + ' quantums par passage - ' + contextChangeDuration + ' de changement de contexte)'
-        document.getElementById('results').append(result)
     }
 }
 
@@ -80,3 +90,4 @@ function showResults(){
 
 let totalTime = 0
 let processes = []
+let averageProcessDuration = 0
