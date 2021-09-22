@@ -4,7 +4,6 @@
 	<head>
 		<meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"> -->
         <link href="style/tailwind.css" rel="stylesheet">
         <link href="style/index.css" rel="stylesheet">
         <title>Simulateur d'ordonanceur</title>
@@ -15,35 +14,40 @@
         </header>
 
         <main class="main container mx-auto text-center text-base sm:text-lg md:text-xl">
-
             <!-- Form -->
 
             <section class="mb-10 text-gray-800">
-                <form class="mb-10 w-11/12 md:w-8/12 lg:w-6/12 xl:w-5/12 mx-auto shadow-lg">
-                    <fieldset class="border border-gray-300 p-3">
-                        <div class="mb-5 sm:flex justify-between">
-                            <label for="processes-number" class="block mb-2">Nombre de processus</label>
-                            <input type="number" id="processes-number" class="w-20 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                <form class="mb-10 w-11/12 md:w-8/12 lg:w-6/12 xl:w-5/12 mx-auto">
+                    <fieldset class="border border-gray-300 p-3 shadow-md mb-10">
+                        <div class="mb-3 sm:flex justify-between items-center">
+                            <label for="processes-number" class="block mb-2 md:mb-0">Nombre de processus</label>
+                            <input type="number" id="processes-number" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md">
                         </div>
-                        <div class="mb-5 sm:flex justify-between">
-                            <label for="quantum-number" class="block mb-2">Durée par passage</label>
-                            <input type="number" id="quantum-number" class="w-20 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                        <div class="mb-3 sm:flex justify-between items-center">
+                            <label for="quantum-number" class="block mb-2 md:mb-0">Durée par passage</label>
+                            <input type="number" id="quantum-number" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md">
                         </div>
-                        <div class="mb-5 sm:flex justify-between">
-                            <label for="context-change-duration" class="block mb-2">Durée de changement de contexte</label>
-                            <input type="number" id="context-change-duration" class="w-20 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                        <div class="mb-3 sm:flex justify-between items-center">
+                            <label for="context-change-duration" class="block mb-2 md:mb-0">Durée de changement de contexte</label>
+                            <input type="number" id="context-change-duration" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md">
                         </div>
-                        <div class="mb-5 sm:flex justify-between">
-                            <label for="processes-load-min" class="block mb-2">Durée minimale de chargement des processus</label>
-                            <input type="number" id="processes-load-min" class="w-20 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                        <div class="mb-3 sm:flex justify-between items-center">
+                            <label for="processes-load-min" class="block mb-2 md:mb-0">Durée minimale de chargement des processus</label>
+                            <input type="number" id="processes-load-min" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md">
                         </div>
-                        <div class="mb-5 sm:flex justify-between">
-                            <label for="processes-load-max" class="block mb-2">Durée maximale de chargement des processus</label>
-                            <input type="number" id="processes-load-max" class="w-20 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                        <div class="sm:flex justify-between items-center">
+                            <label for="processes-load-max" class="block mb-2 md:mb-0">Durée maximale de chargement des processus</label>
+                            <input type="number" id="processes-load-max" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md">
+                        </div>
+                    </fieldset>
+                    <fieldset class="border border-gray-300 p-3 shadow-md">
+                        <div class="sm:flex justify-between items-center">
+                            <label for="simulation-number" class="block mb-2 md:mb-0">Nombre de simulations</label>
+                            <input type="number" id="simulation-number" class="w-4/12 md:w-3/12 xl:w-2/12 sm:ml-5 text-center rounded border-gray-300 shadow-md" value="1">
                         </div>
                     </fieldset>
                 </form>
-                <button type="submit" onclick="showResults()" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10">Charger</button>
+                <button type="submit" onclick="runSimulations()" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250">Lancer</button>
             </section>
 
             <!-- Results -->
@@ -52,6 +56,7 @@
                 <table class="w-11/12 mx-auto shadow-lg border-2 rounded border-sky-600">
                     <thead>
                         <tr class="border-2 rounded border-sky-600">
+                            <th class="border border-sky-600 p-2">#</th>
                             <th class="border border-sky-600 p-2">Processus</th>
                             <th class="border border-sky-600 p-2">Durée passage</th>
                             <th class="border border-sky-600 p-2">Durée changement de contexte</th>

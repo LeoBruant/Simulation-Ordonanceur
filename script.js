@@ -1,11 +1,9 @@
-// Load processes
-
-function loadProcesses(current){
+function loadProcesses(processIndex){
 	// Substract the quantum value to the current process
 
     for (let i = 0; i < resultColumns.quantumPerRound; i++){
-		if(processes[current] > 0){
-			processes[current]--
+        if (processes[processIndex] > 0){
+            processes[processIndex]--
 			totalTime++
 		}
 	}
@@ -16,93 +14,139 @@ function loadProcesses(current){
 
         // Remove process if it is loaded
 
-		if(processes[current] === 0){
-			processes.splice(current, 1)
+        if (processes[processIndex] === 0){
+            processes.splice(processIndex, 1)
 
             // Go back to the first process if we are at the end
 
-            if(current === processes.length){
-                current = 0
+            if (processIndex === processes.length){
+                processIndex = 0
             }
 		}
         
         else{
             // Go back to the first process if we are at the end
 
-            if(current === processes.length - 1){
-                current = 0
+            if (processIndex === processes.length - 1){
+                processIndex = 0
             }
 
             // Or keep going
 
             else{
-                current++
+                processIndex++
             }
         }
 
+        // Add context change duration to total time
+
         totalTime += resultColumns.contextChangeDuration
 
-        loadProcesses(current)
+        loadProcesses(processIndex)
 	}
 }
 
-// Create processes
-
 function createProcesses(processesDurationMin, processesDurationMax){
-    let averageProcessDuration = 0
+    let processesDuration = 0
+
+    // Randomly create processes
 
     for (let i = 0; i < resultColumns.processesNumber; i++){
         let duration = Math.round(Math.random() * (processesDurationMax - processesDurationMin) + processesDurationMin)
 
         processes.push(duration)
-        averageProcessDuration += duration
+        processesDuration += duration
 	}
 
-    resultColumns.averageProcessDuration = (averageProcessDuration / resultColumns.processesNumber).toFixed(2)
+    // Get process average time
+
+    resultColumns.averageProcessDuration = (processesDuration / resultColumns.processesNumber).toFixed(2)
 }
 
-// Show results after clicking button
+function reset() {
+    totalTime = 0
+    processes = []
+}
 
-function showResults(){
+function loadResultsTable() {
+    let resultsTable = document.querySelector('#results table tbody')
+    let row = document.createElement('tr')
+
+    // Check if row number is even
+
+    if (resultsTable.childElementCount % 2 === 0) {
+        var even = true
+    }
+
+    // Add row number
+
+    let column = document.createElement('td')
+
+    column.innerText = resultsTable.childElementCount + 1
+    column.className = 'border border-sky-600 p-2'
+
+    // Set background
+
+    if (even) {
+        column.className += ' bg-sky-100'
+    }
+
+    row.append(column)
+
+    // For each column
+
+    Object.values(resultColumns).forEach(data => {
+
+        // Fill data
+
+        column = document.createElement('td')
+
+        column.innerText = data
+        column.className = 'border border-sky-600 p-2'
+
+        // Set background
+
+        if (even) {
+            column.className += ' bg-sky-100'
+        }
+
+        // Add data to row
+
+        row.append(column)
+    })
+
+    // Add row to table
+
+    resultsTable.append(row)
+}
+
+// Run simulations after clicking button
+function runSimulations() {
+    // Get data from inputs
+
     resultColumns.processesNumber = parseInt(document.getElementById('processes-number').value)
     resultColumns.quantumPerRound = parseInt(document.getElementById('quantum-number').value)
     resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
     let processesDurationMin = parseInt(document.getElementById('processes-load-min').value)
     let processesDurationMax = parseInt(document.getElementById('processes-load-max').value)
+    let simulationNumber = parseInt(document.getElementById('simulation-number').value)
 
     // If all fields are filled
 
     if (!isNaN(resultColumns.processesNumber) && !isNaN(resultColumns.quantumPerRound) && !isNaN(resultColumns.contextChangeDuration) && !isNaN(processesDurationMin) && !isNaN(processesDurationMax)){
+        for (let i = 0; i < simulationNumber; i++){
+            // Reset variables
+            reset()
 
-        // Reset variables
+            // Create processes
+            createProcesses(processesDurationMin, processesDurationMax)
 
-        totalTime = 0
-        processes = []
+            // Load processes
+            loadProcesses(0)
 
-        // Create and load processes
-
-        createProcesses(processesDurationMin, processesDurationMax)
-        loadProcesses(0)
-
-        // Create table rows
-
-        let resultsTable = document.querySelector('#results table tbody')
-        let row = document.createElement('tr')
-        
-        Object.values(resultColumns).forEach(data => {
-            let column = document.createElement('td')
-
-            column.innerText = data
-            column.className = 'border border-sky-600 p-2'
-
-            if (resultsTable.childElementCount % 2 === 0){
-                column.className += ' bg-sky-100'
-            }
-
-            row.append(column)
-        })
-
-        resultsTable.append(row)
+            // Load data in results table
+            loadResultsTable()
+        }
     }
 }
 
