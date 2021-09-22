@@ -8,9 +8,9 @@
         <link href="source/css/index.css" rel="stylesheet">
         <title>Simulateur d'ordonanceur</title>
 	</head>
-	<body class="bg-gray-100">
+	<body class="bg-gray-50">
         <header class="mb-4 md:mb-7 xl:mb-10">
-            <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-blue-500 text-gray-50">Simulateur d'ordonanceur</h1>
+            <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-blue-500 text-white">Simulateur d'ordonanceur</h1>
         </header>
 
         <main class="container mx-auto text-center text-xl">
@@ -30,6 +30,14 @@
                     <div class="field mb-5">
                         <label for="context-change-duration">Durée de changement de contexte<span class="text-red-700">*</span> :</label>
                         <input type="number" id="context-change-duration" class="w-20 ml-5 text-center">
+                    </div>
+                     <div class="field mb-5">
+                        <label for="context-change-duration">Durée minimale de chargement des processus<span class="text-red-700">*</span> :</label>
+                        <input type="number" id="processes-load-min" class="w-20 ml-5 text-center">
+                    </div>
+                     <div class="field mb-5">
+                        <label for="context-change-duration">Durée maximale de chargement des processus<span class="text-red-700">*</span> :</label>
+                        <input type="number" id="processes-load-max" class="w-20 ml-5 text-center">
                     </div>
                 </form>
                 <button onclick="showResults()" class="bg-blue-500 rounded text-gray-50 py-2 px-4">Charger</button>

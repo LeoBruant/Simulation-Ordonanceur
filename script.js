@@ -48,7 +48,7 @@ function loadProcesses(current, quantumPerRound, contextChangeDuration){
 
 // Create processes
 
-function createProcesses(processesNumber){
+function createProcesses(processesNumber, processesDurationMin, processesDurationMax){
 	for(let i = 0; i < processesNumber; i++){
 		processes.push(Math.round((Math.random() * processesDurationMax) + processesDurationMin))
 	}
@@ -60,12 +60,14 @@ function showResults(){
     let processesNumber = parseInt(document.getElementById('process-number').value)
     let quantumPerRound = parseInt(document.getElementById('quantum-number').value)
     let contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
+    let processesDurationMin = parseInt(document.getElementById('processes-load-min').value)
+    let processesDurationMax = parseInt(document.getElementById('processes-load-min').value)
 
     if(processesNumber !== '' && quantumPerRound !== '' && contextChangeDuration !== ''){
         totalTime = 0
         processes = []
 
-        createProcesses(processesNumber)
+        createProcesses(processesNumber, processesDurationMin, processesDurationMax)
         loadProcesses(0, quantumPerRound, contextChangeDuration)
 
         let result = document.createElement('p')
@@ -77,8 +79,4 @@ function showResults(){
 // Variables
 
 let totalTime = 0
-
-let processesDurationMin = 1;
-let processesDurationMax = 15;
-
 let processes = []
