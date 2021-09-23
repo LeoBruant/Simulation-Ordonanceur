@@ -16,67 +16,45 @@
     <main class="main container mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
         <!-- Form -->
         
-        <section class="form text-gray-800 w-11/12 md:w-8/12 lg:w-6/12 xl:w-4/12 mx-auto xl:text-lg">
+        <section class="form text-gray-800 w-11/12 xl:w-4/12 mx-auto xl:text-lg">
             <form class="mb-10">
                 <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
                     <div class="mb-3 sm:flex form-group">
-                        <label for="processes-number" class="mb-2 md:mb-0">Nombre de processus</label>
-                        <input type="number" id="processes-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="10">
-                    </div>
-                    <div class="mb-3 sm:flex form-group">
                         <label for="quantum-number" class="mb-2 md:mb-0">Durée par passage</label>
-                        <input type="number" id="quantum-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="10">
+                        <input type="number" id="quantum-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
                     </div>
                     <div class="mb-3 sm:flex form-group">
                         <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
-                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="10">
-                    </div>
-                    <div class="mb-3 sm:flex form-group">
-                        <label for="processes-load-min" class="mb-2 md:mb-0">Durée minimale chargement processus</label>
-                        <input type="number" id="processes-load-min" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
-                    </div>
-                    <div class="sm:flex form-group">
-                        <label for="processes-load-max" class="mb-2 md:mb-0">Durée maximale chargement processus</label>
-                        <input type="number" id="processes-load-max" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="10">
-                    </div>
-                </fieldset>
-                
-                <fieldset class="p-3 shadow-md py-4 px-5 mb-10 bg-white border rounded border-gray-300 border-opacity-40">
-                    <div class="sm:flex form-group">
-                        <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
-                        <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
+                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
                     </div>
                 </fieldset>
                 
                 <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
                     <div class="sm:flex form-group">
-                        <label for="simulation-mode" class="mb-2 md:mb-0">Mode de simulation</label>
-                        <select id="simulation-mode" class="w-6/12 sm:w-5/12 md:w-4/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600">
-                            <option value="round-robin">Round robin</option>
-                            <option value="smallest-first">Smallest first</option>
-                        </select>
+                        <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
+                        <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
                     </div>
                 </fieldset>
             </form>
             
-            <button type="submit" onclick="runSimulations()" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250">Lancer</button>
-            
-            <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
+            <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize mr-5">round robin</button>
+            <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize">fastest first</button>
         </section>
+
+        <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
         
         <!-- Results -->
         
-        <section id="results" class="mb-10 w-11/12 md:w-8/12 lg:w-6/12 xl:w-8/12 mx-auto xl:text-lg">
-            <table class="w-11/12 ml-auto mr-auto xl:mr-0 shadow-md capitalize border-2 border-sky-600 border-opacity-40">
+        <section id="results" class="mb-10 w-11/12 xl:w-8/12 mx-auto xl:text-lg">
+            <table class="w-full xl:w-11/12 ml-auto mr-auto xl:mr-0 shadow-md capitalize border-2 border-sky-600 border-opacity-40">
                 <thead>
                     <tr class="border-2 border-sky-600 border-opacity-40">
                         <th class="border-2 border-sky-600 p-2 border-opacity-40">#</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">mode</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">processus</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">durée passage</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">durée changement contexte</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">durée moy. chargement processus</th>
-                        <th class="border border-sky-600 p-2 xl:font-normal border-opacity-40">durée totale</th>
+                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">mode</th>
+                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée passage</th>
+                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée changement contexte</th>
+                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée moy. chargement processus</th>
+                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée totale</th>
                     </tr>
                 </thead>
                 <tbody></tbody>

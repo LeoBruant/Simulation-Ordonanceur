@@ -1,12 +1,15 @@
 function loadProcessesRoundRobin(processIndex){
     // Substract the quantum value to the current process
     
-    for (let i = 0; i < resultColumns.quantumPerRound; i++){
+    for (let i = 0; i < resultColumns.durationPerRound; i++){
         if (processes[processIndex] > 0){
             processes[processIndex]--
-            totalTime++
         }
+
+        resultColumns.totalTime++
     }
+
+    resultColumns.totalTime += resultColumns.contextChangeDuration
     
     // If Processes are still loading
     
@@ -38,26 +41,33 @@ function loadProcessesRoundRobin(processIndex){
             }
         }
         
-        // Add context change duration to total time
-        
-        totalTime += resultColumns.contextChangeDuration
-        
         loadProcessesRoundRobin(processIndex)
     }
 }
 
-function loadProcessesSmallestFirst(){
+function loadProcessesFastestFirst(){
     processes.forEach((process, index) => {
-        for (let i = 0; i < process; i++){
+        let i = 0
+        let currentProcess = processes[process]
+
+        // While process is not loaded
+
+        while (i < currentProcess){
             if (process > 0){
                 processes[index]--
-                totalTime++
-                
-                if(i % resultColumns.quantumPerRound === 0){
-                    totalTime += resultColumns.contextChangeDuration
-                }
+                resultColumns.totalTime++
             }
+
+            if ((i + 1) % resultColumns.durationPerRound === 0) {
+                resultColumns.totalTime += resultColumns.contextChangeDuration
+            }
+            
+            i++
         }
+
+        // If process is loaded
+
+        resultColumns.totalTime += resultColumns.contextChangeDuration
     })
 }
 
@@ -66,7 +76,7 @@ function createProcesses(processesDurationMin, processesDurationMax){
     
     // Randomly create processes
     
-    for (let i = 0; i < resultColumns.processesNumber; i++){
+    for (let i = 0; i < processesNumber; i++){
         let duration = Math.round(Math.random() * (processesDurationMax - processesDurationMin) + processesDurationMin)
         
         processes.push(duration)
@@ -75,7 +85,7 @@ function createProcesses(processesDurationMin, processesDurationMax){
     
     // Get process average time
     
-    resultColumns.averageProcessDuration = (processesDuration / resultColumns.processesNumber).toFixed(2)
+    resultColumns.averageProcessDuration = (processesDuration / processesNumber).toFixed(2)
 }
 
 function reset() {
@@ -83,7 +93,7 @@ function reset() {
     processes = []
 }
 
-function loadResultsTable() {
+function loadResultsTable(mode) {
     let resultsTable = document.querySelector('#results table tbody')
     let row = document.createElement('tr')
     
@@ -134,23 +144,21 @@ function loadResultsTable() {
 }
 
 // Run simulations after clicking button
-function runSimulations() {
+function runSimulations(mode) {
     // Get data from inputs
 
-    resultColumns.mode = document.getElementById('simulation-mode').value.replace('-', ' ')
-    resultColumns.processesNumber = parseInt(document.getElementById('processes-number').value)
-    resultColumns.quantumPerRound = parseInt(document.getElementById('quantum-number').value)
+    resultColumns.mode = mode.replace('-', ' ')
+    resultColumns.durationPerRound = parseInt(document.getElementById('quantum-number').value)
     resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
 
-    let processesDurationMin = parseInt(document.getElementById('processes-load-min').value)
-    let processesDurationMax = parseInt(document.getElementById('processes-load-max').value)
+    let processesDurationMin = 1
+    let processesDurationMax = 10
     
     let simulationNumber = parseInt(document.getElementById('simulation-number').value)
-    let simulationMode = document.getElementById('simulation-mode').value
     
     // If all fields are filled
     
-    if (!isNaN(resultColumns.processesNumber) && !isNaN(resultColumns.quantumPerRound) && !isNaN(resultColumns.contextChangeDuration) && !isNaN(processesDurationMin) && !isNaN(processesDurationMax)){
+    if (!isNaN(resultColumns.durationPerRound) && !isNaN(resultColumns.contextChangeDuration)){
         for (let i = 0; i < simulationNumber; i++){
             // Reset variables
             reset()
@@ -159,27 +167,26 @@ function runSimulations() {
             createProcesses(processesDurationMin, processesDurationMax)
             
             // Load processes round robin
-            if(simulationMode === 'round-robin'){
+            if(mode === 'round-robin'){
+                resultColumns.totalTime = 0
                 loadProcessesRoundRobin(0)
-                resultColumns.totalTime = totalTime
             }
             
             // Load processes smallest first
-            else if(simulationMode === 'smallest-first'){
+            else if(mode === 'fastest-first'){
                 processes.sort()
-                loadProcessesSmallestFirst(0)
-                
-                console.log(processes)
+                resultColumns.totalTime = 0
+                loadProcessesFastestFirst(0)
             }
             
             // Load data in results table
-            loadResultsTable()
+            loadResultsTable(mode)
         }
     }
 }
 
 // Variables
 
-let totalTime = 0
 let processes = []
 let resultColumns = {}
+let processesNumber = 10
