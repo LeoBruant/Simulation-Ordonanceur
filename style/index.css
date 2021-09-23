@@ -4,4 +4,21 @@
 body {
   font-family: Calibri;
 }
-/*# sourceMappingURL=index.css.map */
+
+.main .line {
+  height: 2px;
+  background-color: #d1d5db;
+  margin: 5rem auto;
+  width: 91.666667%;
+}
+
+.main .form .form-group {
+  justify-content: space-between;
+  align-items: center;
+}
+.main .form label {
+  display: block;
+}
+.main .form input {
+  text-align: center;
+}/*# sourceMappingURL=index.css.map */
