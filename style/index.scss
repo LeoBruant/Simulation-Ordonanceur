@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 body{
-    font-family: Calibri;
+  font-family: Calibri;
 }
 
 // Main
 
 .main .line{
-    height: 2px;
+  height: 2px;
 }
 
 .main{
-    .form{
-        .form-group{
-            justify-content: space-between;
-            align-items: center;
-        }
-        label{
-            display: block;
-        }
-        input{
-            text-align: center;
-        }
+  .form{
+    .form-group{
+      justify-content: space-between;
+      align-items: center;
     }
+    label{
+      display: block;
+    }
+    input{
+      text-align: center;
+    }
+  }
 }
