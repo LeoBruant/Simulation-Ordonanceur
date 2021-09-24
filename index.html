@@ -2,66 +2,80 @@
 
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="style/tailwind.css" rel="stylesheet">
-    <link href="style/index.css" rel="stylesheet">
-    <title>Simulateur d'ordonanceur</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="style/tailwind.css" rel="stylesheet">
+  <link href="style/index.css" rel="stylesheet">
+  <title>Simulateur d'ordonanceur</title>
 </head>
 <body class="bg-warmGray-50">
-    <header class="mb-4 md:mb-7 xl:mb-10 shadow-lg">
-        <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-sky-600 text-white">Simulateur d'ordonanceur</h1>
-    </header>
+  <header class="mb-4 md:mb-7 xl:mb-10 shadow-lg">
+    <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-sky-600 text-white">Simulateur d'ordonanceur</h1>
+  </header>
+  
+  <main class="main container mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
+    <!-- Form -->
     
-    <main class="main container mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
-        <!-- Form -->
-        
-        <section class="form text-gray-800 w-11/12 xl:w-4/12 mx-auto xl:text-lg">
-            <form class="mb-10">
-                <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
-                    <div class="mb-3 sm:flex form-group">
-                        <label for="quantum-number" class="mb-2 md:mb-0">Durée par passage</label>
-                        <input type="number" id="quantum-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
-                    </div>
-                    <div class="mb-3 sm:flex form-group">
-                        <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
-                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
-                    </div>
-                </fieldset>
-                
-                <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
-                    <div class="sm:flex form-group">
-                        <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
-                        <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
-                    </div>
-                </fieldset>
-            </form>
-            
-            <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize mr-5">round robin</button>
-            <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize">fastest first</button>
-        </section>
+    <section class="form text-gray-800 w-11/12 xl:w-4/12 mx-auto xl:text-lg">
 
-        <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
+      <!-- Fields -->
+
+      <form class="mb-10">
+        <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
+          <div class="mb-3 sm:flex form-group">
+            <label for="quantum-number" class="mb-2 md:mb-0">Durée par passage</label>
+            <input type="number" id="quantum-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
+          </div>
+          <div class="mb-3 sm:flex form-group">
+            <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
+            <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
+          </div>
+        </fieldset>
         
-        <!-- Results -->
+        <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
+          <div class="sm:flex form-group">
+            <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
+            <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
+          </div>
+        </fieldset>
+      </form>
+
+      <!-- Run buttons -->
+      
+      <div class="flex justify-evenly">
+        <div>
+          <label class="capitalize text-center">round robin</label>
+          <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize">charger</button>
+        </div>
         
-        <section id="results" class="mb-10 w-11/12 xl:w-8/12 mx-auto xl:text-lg">
-            <table class="w-full xl:w-11/12 ml-auto mr-auto xl:mr-0 shadow-md capitalize border-2 border-sky-600 border-opacity-40">
-                <thead>
-                    <tr class="border-2 border-sky-600 border-opacity-40">
-                        <th class="border-2 border-sky-600 p-2 border-opacity-40">#</th>
-                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">mode</th>
-                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée passage</th>
-                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée changement contexte</th>
-                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée moy. chargement processus</th>
-                        <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée totale</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
-    </main>
+        <div>
+          <label class="capitalize">fastest first</label>
+          <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 shadow-lg transition duration-250 capitalize">charger</button>
+        </div>
+      </div>
+    </section>
     
-    <script src="script.js"></script>
+    <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
+    
+    <!-- Results -->
+    
+    <section id="results" class="mb-10 w-11/12 xl:w-8/12 mx-auto xl:text-lg">
+      <table class="w-full xl:w-11/12 ml-auto mr-auto xl:mr-0 shadow-md capitalize border-2 border-sky-600 border-opacity-40">
+        <thead>
+          <tr class="border-2 border-sky-600 border-opacity-40">
+            <th class="border-2 border-sky-600 p-2 border-opacity-40">#</th>
+            <th class="border border-sky-600 p-2 border-opacity-40 truncate">mode</th>
+            <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée passage</th>
+            <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée changement contexte</th>
+            <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée moy. chargement processus</th>
+            <th class="border border-sky-600 p-2 border-opacity-40 truncate">durée totale</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+  
+  <script src="script.js"></script>
 </body>
 </html>
