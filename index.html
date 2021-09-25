@@ -13,25 +13,42 @@
     
     <title>Simulateur d'ordonanceur</title>
 </head>
-<body class="bg-warmGray-50">
-    <header class="mb-4 md:mb-7 xl:mb-10 shadow-lg">
-        <h1 class="text-center py-4 md:py-7 xl:py-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl bg-sky-600 text-white">Simulateur d'ordonanceur</h1>
+<body>
+    <header class="mb-9 md:mb-12 xl:mb-15 shadow-lg">
+        <h1 class="title text-center py-4 md:py-7 xl:py-10 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl bg-sky-600 text-white font-thin">Simulateur d'ordonanceur</h1>
     </header>
     
-    <main class="main container mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
+    <main class="main bg-warmGray-50 container mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
         <!-- Form -->
         
         <section class="form text-gray-800 w-11/12 xl:w-4/12 mx-auto xl:text-lg">
+
+            <!-- Constants -->
+
+            <fieldset class="py-4 px-5 mb-10 bg-white">
+                <div class="mb-3 sm:flex form-group">
+                    <label class="mb-2 md:mb-0">Nombre de processus</label>
+                    <p id="processes-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5"></p>
+                </div>
+                <div class="mb-3 sm:flex form-group">
+                    <label class="mb-2 md:mb-0">Durée min. chargement processus</label>
+                    <p id="processes-duration-min" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5"></p>
+                </div>
+                <div class="sm:flex form-group">
+                    <label class="mb-2 md:mb-0">Durée max. chargement processus</label>
+                    <p id="processes-duration-max" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5"></p>
+                </div>
+            </fieldset>
             
             <!-- Fields -->
             
             <form class="mb-10">
                 <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
                     <div class="mb-3 sm:flex form-group">
-                        <label for="quantum-number" class="mb-2 md:mb-0">Durée par passage</label>
-                        <input type="number" id="quantum-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
+                        <label for="round-duration" class="mb-2 md:mb-0">Durée par passage</label>
+                        <input type="number" id="round-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
                     </div>
-                    <div class="mb-3 sm:flex form-group">
+                    <div class="sm:flex form-group">
                         <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
                         <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
                     </div>
@@ -59,6 +76,8 @@
                 </fieldset>
             </div>
         </section>
+
+        <!-- Line -->
         
         <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
         

@@ -2,27 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
-  font-family: Calibri;
+// Header
+
+.title{
+    font-family: Roboto;
 }
 
 // Main
 
 .main .line{
-  height: 2px;
+    height: 2px;
 }
 
 .main{
-  .form{
-    .form-group{
-      justify-content: space-between;
-      align-items: center;
+    font-family: Calibri;
+    .form{
+        .form-group{
+            justify-content: space-between;
+            align-items: center;
+        }
+        label{
+            display: block;
+        }
+        input{
+            text-align: center;
+        }
     }
-    label{
-      display: block;
-    }
-    input{
-      text-align: center;
-    }
-  }
 }

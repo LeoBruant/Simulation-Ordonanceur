@@ -97,28 +97,12 @@ function loadResultsTable(mode) {
     let resultsTable = document.querySelector('#results table tbody')
     let row = document.createElement('tr')
     
-    // Check mode for background
-    
-    var background = ''
-    
-    if(mode === 'round-robin'){
-        background = ' bg-indigo-100'
-    }
-    
-    else if(mode === 'fastest-first'){
-        background = ' bg-cyan-100'
-    }
-    
     // Add row number
     
     let column = document.createElement('td')
     
     column.innerText = resultsTable.childElementCount + 1
-    column.className = 'border-t border-b border-l-2 border-r-2 border-sky-600 p-2 xl:font-semibold border-opacity-40' + background
-    
-    // Set background
-    
-    column.className += background
+    column.className = 'border-t border-b border-l-2 border-r-2 border-sky-600 p-2 xl:font-semibold border-opacity-40 ' + rowColors[mode]
     
     row.append(column)
     
@@ -131,11 +115,7 @@ function loadResultsTable(mode) {
         column = document.createElement('td')
         
         column.innerText = data
-        column.className = 'border border-sky-600 p-2 border-opacity-40'
-        
-        // Set background
-        
-        column.className += background
+        column.className = 'border border-sky-600 p-2 border-opacity-40 ' + rowColors[mode]
         
         // Add data to row
         
@@ -152,11 +132,8 @@ function runSimulations(mode) {
     // Get data from inputs
     
     resultColumns.mode = mode.replace('-', ' ')
-    resultColumns.durationPerRound = parseInt(document.getElementById('quantum-number').value)
+    resultColumns.durationPerRound = parseInt(document.getElementById('round-duration').value)
     resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
-    
-    let processesDurationMin = 1
-    let processesDurationMax = 10
     
     let simulationNumber = parseInt(document.getElementById('simulation-number').value)
     
@@ -189,11 +166,22 @@ function runSimulations(mode) {
     }
 }
 
+// Constants
+
+const processesNumber = 10
+const processesDurationMin = 1
+const processesDurationMax = 10
+let rowColors = []
+rowColors['round-robin'] = 'bg-cyan-100'
+rowColors['fastest-first'] = 'bg-indigo-100'
+
 // Variables
 
 let processes = []
 let resultColumns = {}
-let processesNumber = 10
 
 // Main
 
+document.getElementById('processes-number').innerText = processesNumber
+document.getElementById('processes-duration-min').innerText = processesDurationMin
+document.getElementById('processes-duration-max').innerText = processesDurationMax

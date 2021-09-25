@@ -1,12 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body {
-  font-family: Calibri;
+.title {
+  font-family: Roboto;
 }
 
 .main .line {
   height: 2px;
+}
+
+.main {
+  font-family: Calibri;
 }
 
 .main .form .form-group {
