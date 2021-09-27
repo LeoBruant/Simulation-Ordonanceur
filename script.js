@@ -214,10 +214,12 @@ function updatePager () {
             pageSelector.append(option)
         })
     } else {
+        pageSelector.innerHTML = ''
+
         for (let i = pageSelector.childElementCount; i < pages.length + 1; i++) {
             const option = document.createElement('option')
-            option.innerText = i
-            option.value = i
+            option.innerText = i + 1
+            option.value = i + 1
 
             pageSelector.append(option)
         }
