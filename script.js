@@ -216,7 +216,7 @@ function updatePager () {
     } else {
         pageSelector.innerHTML = ''
 
-        for (let i = pageSelector.childElementCount; i < pages.length + 1; i++) {
+        for (let i = pageSelector.childElementCount; i < pages.length; i++) {
             const option = document.createElement('option')
             option.innerText = i + 1
             option.value = i + 1
