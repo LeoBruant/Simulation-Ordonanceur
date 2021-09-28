@@ -20,120 +20,119 @@
         <h1 class="title text-center py-4 md:py-7 xl:py-10 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl bg-sky-600 text-white font-thin">Simulateur d'ordonanceur</h1>
     </header>
     
-    <main class="main text-gray-800 container xl:w-11/12 mx-auto text-center text-base sm:text-lg xl:text-xl xl:flex">
-        <!-- Form -->
+    <main class="main text-gray-800 container xl:w-11/12 mx-auto text-center text-base sm:text-lg xl:text-xl">
+        <div class="xl:flex">
+            <!-- Form -->
         
-        <section class="form w-11/12 xl:w-4/12 mx-auto xl:text-lg">
+            <section class="form w-11/12 xl:w-4/12 mx-auto xl:text-lg">
 
-            <!-- Constants -->
+                <!-- Constants -->
 
-            <div>
-                <fieldset class="py-4 px-5 mb-10 bg-white">
-                    <div class="sm:flex form-group">
-                        <label class="mb-2 md:mb-0">Nombre de processus</label>
-                        <p id="processes-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 mx-auto xl:mx-0"></p>
-                    </div>
-                </fieldset>
-                
-                <fieldset class="py-4 px-5 mb-10 bg-white">
-                    <div class="mb-3 sm:flex form-group">
-                        <label class="mb-2 md:mb-0">Durée min. chargement processus</label>
-                        <p id="processes-duration-min" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 mx-auto xl:mx-0"></p>
-                    </div>
-                    <div class="sm:flex form-group">
-                        <label class="mb-2 md:mb-0">Durée max. chargement processus</label>
-                        <p id="processes-duration-max" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 mx-auto xl:mx-0"></p>
-                    </div>
-                </fieldset>
-            </div>
-            
-            <!-- Fields -->
-            
-            <form class="mb-10">
-                <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
-                    <div class="mb-3 sm:flex form-group">
-                        <label for="round-duration" class="mb-2 md:mb-0">Durée par passage ( Quantum )</label>
-                        <input type="number" id="round-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
-                    </div>
-                    <div class="sm:flex form-group">
-                        <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
-                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
-                    </div>
-                </fieldset>
-                
-                <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
-                    <div class="sm:flex form-group">
-                        <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
-                        <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
-                    </div>
-                </fieldset>
-            </form>
-            
-            <!-- Run buttons -->
-            
-            <div class="flex justify-evenly">
-                <fieldset class="border rounded border-gray-300 p-1">
-                    <legend class="capitalize text-xs sm:text-sm xl:text-base">round robin</legend>
-                    <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
-                </fieldset>
-                
-                <fieldset class="border rounded border-gray-300 p-1">
-                    <legend class="capitalize text-xs sm:text-sm xl:text-base">fastest first</legend>
-                    <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
-                </fieldset>
-            </div>
-        </section>
-        
-        <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
-        
-        <!-- Results -->
-        
-        <section id="results" class="mb-10 w-11/12 xl:w-8/12 mx-auto xl:text-lg">
-            <div class="w-full xl:w-11/12 ml-auto mr-auto xl:mr-0">
-                <p class="text-left mb-1" id="total-elements-number"></p>
-
-                <table class="w-full shadow-md capitalize border-2 border-sky-600 border-opacity-40 table-fixed">
-                    <thead>
-                        <tr class="border-2 border-sky-600 border-opacity-40">
-                            <th class="border-2 border-sky-600 p-2 border-opacity-40 w-1/12">#</th>
-                            <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12">mode</th>
-                            <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de passage">durée de passage</th>
-                            <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de changement de contexte">durée de changement de contexte</th>
-                            <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée moyenne chargement processus">durée moyenne chargement processus</th>
-                            <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="oui">durée totale</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-                <!-- Table pager -->
-
-                <div class="pager invisible flex justify-between">
-                    <select id="page-selector" onchange="changePage(0)" class="mt-2 border-2 border-gray-800 py-0 bg-warmGray-50 rounded border-opacity-40 h-8 focus:ring-0 focus:border-gray-800 focus:border-opacity-80"></select>
-                
-                    <div class="flex justify-between items-center w-4/12 md:w-3/12 mt-1">
-                        <button onclick="pagesEdge(-1)"><i class="fas fa-step-backward"></i></button>
-                        <button onclick="changePage(-1)"><i class="fas fa-caret-left fa-2x"></i></button>
-                        <div class="flex justify-center items-center">
-                            <p id="current-page"></p>
-                            <p id="pages-number"></p>
+                <div class="mb-10">
+                    <fieldset class="py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
+                        <div class="sm:flex form-group">
+                            <label class="mb-2 md:mb-0">Nombre de processus</label>
+                            <p id="processes-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 mx-auto xl:mx-0"></p>
                         </div>
-                        <button onclick="changePage(1)"><i class="fas fa-caret-right fa-2x"></i></button>
-                        <button onclick="pagesEdge(1)"><i class="fas fa-step-forward"></i></button>
+                    </fieldset>
+                </div>
+                
+                <!-- Fields -->
+                
+                <form class="mb-10">
+                    <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
+                        <div class="mb-3 sm:flex form-group">
+                            <label for="round-duration" class="mb-2 md:mb-0">Durée par passage ( Quantum )</label>
+                            <input type="number" id="round-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
+                        </div>
+                        <div class="sm:flex form-group">
+                            <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
+                            <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
+                        <div class="sm:flex form-group">
+                            <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
+                            <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
+                        </div>
+                    </fieldset>
+                </form>
+                
+                <!-- Run buttons -->
+                
+                <div class="flex justify-evenly">
+                    <fieldset class="border rounded border-gray-300 p-1">
+                        <legend class="capitalize text-xs sm:text-sm xl:text-base">round robin</legend>
+                        <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
+                    </fieldset>
+                    
+                    <fieldset class="border rounded border-gray-300 p-1">
+                        <legend class="capitalize text-xs sm:text-sm xl:text-base">fastest first</legend>
+                        <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
+                    </fieldset>
+                </div>
+            </section>
+            
+            <div class="line bg-gray-300 mb-20 w-11/12 mx-auto xl:hidden"></div>
+            
+            <!-- Results -->
+            
+            <section id="results" class="w-11/12 xl:w-8/12 mx-auto xl:text-lg">
+                <div class="w-full xl:w-11/12 ml-auto mr-auto xl:mr-0">
+                    <p class="text-left mb-1" id="total-elements-number"></p>
+
+                    <table class="w-full shadow-md capitalize border-2 border-sky-600 border-opacity-40 table-fixed">
+                        <thead>
+                            <tr class="border-2 border-sky-600 border-opacity-40">
+                                <th class="border-2 border-sky-600 p-2 border-opacity-40 w-1/12">#</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="mode">mode</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de passage">durée de passage</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de changement de contexte">durée de changement de contexte</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="temps moyen d'attente">temps moyen d'attente ( TMA )</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="durée totale">durée totale</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                    <!-- Table pager -->
+
+                    <div class="pager invisible flex justify-between">
+                        <select id="page-selector" onchange="changePage(0)" class="mt-2 border-2 border-gray-800 py-0 bg-warmGray-50 rounded border-opacity-40 h-8 focus:ring-0 focus:border-gray-800 focus:border-opacity-80"></select>
+                    
+                        <div class="flex justify-between items-center w-4/12 md:w-3/12 mt-1">
+                            <button onclick="pagesEdge(-1)"><i class="fas fa-step-backward"></i></button>
+                            <button onclick="changePage(-1)"><i class="fas fa-caret-left fa-2x"></i></button>
+                            <div class="flex justify-center items-center">
+                                <p id="current-page"></p>
+                                <p id="pages-number"></p>
+                            </div>
+                            <button onclick="changePage(1)"><i class="fas fa-caret-right fa-2x"></i></button>
+                            <button onclick="pagesEdge(1)"><i class="fas fa-step-forward"></i></button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+        </div>
+
+        <div class="line bg-gray-300 mb-20 w-11/12 xl:w-full mx-auto"></div>
+        
+        <!-- Charts -->
+        
+        <section class="w-11/12 xl:w-full mx-auto">
+            <canvas id="lineChart" height="100px"></canvas>
         </section>
     </main>
 
-    <div class="line bg-gray-300 my-20 w-11/12 mx-auto"></div>
-
-    <!-- Charts -->
-
-    <section class="w-11/12 mx-auto">
-        <canvas id="lineChart" class="h-10"></canvas>
-    </section>
+    <!-- Scripts -->
     
     <script src="script.js"></script>
+    <script>
+        const myChart = new Chart(
+            document.getElementById('lineChart'),
+            lineChartConfig
+        )
+    </script>
 </body>
 </html>

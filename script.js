@@ -18,15 +18,21 @@ function runSimulations (mode) {
             // Create processes
             createProcesses(processesDurationMin, processesDurationMax)
 
+            // Initialize wait durations
+            processes.forEach((process) => {
+                waitDurations.push(0)
+            })
+
             // Load processes
             if (mode === 'round-robin') {
-                resultColumns.totalTime = 0
-                loadProcessesRoundRobin(0)
+                loadProcessesRoundRobin()
             } else if (mode === 'fastest-first') {
                 processes.sort()
-                resultColumns.totalTime = 0
-                loadProcessesFastestFirst(0)
+                loadProcessesFastestFirst()
             }
+
+            // Set average wait time
+            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
 
             // Load data in pages
             loadPagesResults(mode)
@@ -43,10 +49,13 @@ function runSimulations (mode) {
 // Reset variables
 function resetVariables () {
     processes = []
+    resultColumns.averageWaitDuration = 0
+    resultColumns.totalTime = 0
+    waitDurations = []
 }
 // Randomly generate processes
 function createProcesses (processesDurationMin, processesDurationMax) {
-    let processesDuration = 0
+    // let processesDuration = 0
 
     // Randomly generate processes
 
@@ -54,72 +63,80 @@ function createProcesses (processesDurationMin, processesDurationMax) {
         const duration = Math.round(Math.random() * (processesDurationMax - processesDurationMin) + processesDurationMin)
 
         processes.push(duration)
-        processesDuration += duration
+        // processesDuration += duration
     }
 
     // Get average processes loading time
 
-    resultColumns.averageProcessDuration = (processesDuration / processesNumber).toFixed(2)
+    // resultColumns.averageProcessDuration = (processesDuration / processesNumber).toFixed(2)
 }
 // Load processes using round robin method
-function loadProcessesRoundRobin (processIndex) {
+function loadProcessesRoundRobin () {
+    // Add context change duration to wait times
+
+    for (let i = 0; i < processes.length; i++) {
+        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
+            waitDurations[i] += resultColumns.contextChangeDuration
+        }
+    }
+
     // Substract the quantum value to the current process
 
     for (let i = 0; i < resultColumns.durationPerRound; i++) {
         if (processes[processIndex] > 0) {
             processes[processIndex]--
             resultColumns.totalTime++
+
+            // Add wait times
+
+            for (let i = 0; i < processes.length; i++) {
+                if (i !== processIndex && processes[i] !== 0) {
+                    waitDurations[i]++
+                }
+            }
         }
     }
 
-    resultColumns.totalTime += resultColumns.contextChangeDuration
+    // If processes are not all loaded
 
-    // If all processes are not loaded
+    if (processes.reduce((acc, cur) => acc + cur) !== 0) {
+        // Go back to first process or keep going
 
-    if (processes.length !== 0) {
-        // If process is loaded or not
-
-        if (processes[processIndex] === 0) {
-            // Remove process
-
-            processes.splice(processIndex, 1)
-
-            // Go back to the first process if we are at the end
-
-            if (processIndex === processes.length) {
-                processIndex = 0
-            }
+        if (processIndex === processes.length - 1) {
+            processIndex = 0
         } else {
-            // Go back to the first process if we are at the end
-
-            if (processIndex === processes.length - 1) {
-                processIndex = 0
-            } else {
-                processIndex++
-            }
+            processIndex++
         }
 
-        loadProcessesRoundRobin(processIndex)
+        resultColumns.totalTime += resultColumns.contextChangeDuration
+        loadProcessesRoundRobin()
     }
 }
 // Load processes using fastest first method
 function loadProcessesFastestFirst () {
     processes.forEach((process, index) => {
-        let i = 0
-        const currentProcess = processes[process]
+        // Add context change duration to wait times
+
+        for (let i = 0; i < processes.length; i++) {
+            if (i !== index && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
+                waitDurations[i] += resultColumns.contextChangeDuration
+            }
+        }
 
         // While process is not loaded
 
-        while (i < currentProcess) {
-            if (process > 0) {
-                processes[index]--
-                resultColumns.totalTime++
+        while (processes[index] > 0) {
+            resultColumns.totalTime++
+            processes[index]--
+
+            // Add wait times
+
+            for (let i = 0; i < processes.length; i++) {
+                if (i !== index && processes[i] !== 0) {
+                    waitDurations[i]++
+                }
             }
-
-            i++
         }
-
-        // If process is loaded
 
         resultColumns.totalTime += resultColumns.contextChangeDuration
     })
@@ -270,31 +287,37 @@ const processesDurationMin = 1
 const processesDurationMax = 10
 const rowsPerTablePage = 10
 const rowColors = []
+
 rowColors['round-robin'] = 'bg-cyan-100'
 rowColors['fastest-first'] = 'bg-indigo-100'
-const data = {
-    labels: ['1', '2', '3', '4', '5', '6', '7'],
-    datasets: [{
-        label: 'My First Dataset',
-        data: [65, 59, 80, 81, 56, 55, 40],
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-    }]
-}
+
 const lineChartConfig = {
     type: 'line',
-    data: data
+    data: {
+        labels: ['1', '2', '3', '4', '5', '6', '7'],
+        datasets: [
+            {
+                label: 'Round robin',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgb(75, 192, 192)'
+            },
+            {
+                label: 'Fastest first',
+                data: [40, 55, 56, 81, 80, 59, 65],
+                borderColor: 'rgb(192, 192, 75)',
+                backgroundColor: 'rgb(192, 192, 75)'
+            }
+        ]
+    }
 }
-const myChart = new Chart(
-    document.getElementById('lineChart'),
-    lineChartConfig
-)
 
 // Variables
 
 const resultColumns = {}
 let processes = []
+let processIndex = 0
+let waitDurations = []
 const pages = []
 const pagesRowModes = []
 let totalElementsNumber = 0
@@ -303,7 +326,3 @@ let currentPage = 1
 // Main
 
 document.getElementById('processes-number').innerText = processesNumber
-document.getElementById('processes-duration-min').innerText = processesDurationMin
-document.getElementById('processes-duration-max').innerText = processesDurationMax
-
-// TMA = temps d'attente / nombre de processus
