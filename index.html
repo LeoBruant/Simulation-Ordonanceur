@@ -12,6 +12,8 @@
     <link href="style/index.css" rel="stylesheet">
     
     <title>Simulateur d'ordonanceur</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-warmGray-50">
     <header class="mb-9 md:mb-12 xl:mb-15 shadow-lg">
@@ -50,12 +52,12 @@
             <form class="mb-10">
                 <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
                     <div class="mb-3 sm:flex form-group">
-                        <label for="round-duration" class="mb-2 md:mb-0">Durée par passage</label>
+                        <label for="round-duration" class="mb-2 md:mb-0">Durée par passage ( Quantum )</label>
                         <input type="number" id="round-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
                     </div>
                     <div class="sm:flex form-group">
                         <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
-                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
+                        <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
                     </div>
                 </fieldset>
                 
@@ -81,8 +83,6 @@
                 </fieldset>
             </div>
         </section>
-
-        <!-- Line -->
         
         <div class="line bg-gray-300 my-20 w-11/12 mx-auto xl:hidden"></div>
         
@@ -125,6 +125,14 @@
             </div>
         </section>
     </main>
+
+    <div class="line bg-gray-300 my-20 w-11/12 mx-auto"></div>
+
+    <!-- Charts -->
+
+    <section class="w-11/12 mx-auto">
+        <canvas id="lineChart" class="h-10"></canvas>
+    </section>
     
     <script src="script.js"></script>
 </body>

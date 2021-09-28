@@ -1,0 +1,10 @@
+{
+    "quantum": 5,
+    "contextChangeDuration": 5,
+    "processes": [
+        {
+            "duration": 2,
+            "entryTime": 0
+        }
+    ]
+}

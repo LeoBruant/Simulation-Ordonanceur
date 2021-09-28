@@ -265,13 +265,31 @@ function pagesEdge (direction) {
 
 // Constants
 
-const processesNumber = 10
+const processesNumber = 100
 const processesDurationMin = 1
 const processesDurationMax = 10
 const rowsPerTablePage = 10
 const rowColors = []
 rowColors['round-robin'] = 'bg-cyan-100'
 rowColors['fastest-first'] = 'bg-indigo-100'
+const data = {
+    labels: ['1', '2', '3', '4', '5', '6', '7'],
+    datasets: [{
+        label: 'My First Dataset',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+    }]
+}
+const lineChartConfig = {
+    type: 'line',
+    data: data
+}
+const myChart = new Chart(
+    document.getElementById('lineChart'),
+    lineChartConfig
+)
 
 // Variables
 
@@ -287,3 +305,5 @@ let currentPage = 1
 document.getElementById('processes-number').innerText = processesNumber
 document.getElementById('processes-duration-min').innerText = processesDurationMin
 document.getElementById('processes-duration-max').innerText = processesDurationMax
+
+// TMA = temps d'attente / nombre de processus

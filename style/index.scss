@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+// General
+
+.line{
+    height: 2px;
+}
+
 // Header
 
 .title{
@@ -9,10 +15,6 @@
 }
 
 // Main
-
-.main .line{
-    height: 2px;
-}
 
 .main{
     font-family: Calibri;
