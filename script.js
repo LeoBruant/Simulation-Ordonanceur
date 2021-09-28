@@ -68,9 +68,8 @@ function loadProcessesRoundRobin (processIndex) {
     for (let i = 0; i < resultColumns.durationPerRound; i++) {
         if (processes[processIndex] > 0) {
             processes[processIndex]--
+            resultColumns.totalTime++
         }
-
-        resultColumns.totalTime++
     }
 
     resultColumns.totalTime += resultColumns.contextChangeDuration
@@ -115,10 +114,6 @@ function loadProcessesFastestFirst () {
             if (process > 0) {
                 processes[index]--
                 resultColumns.totalTime++
-            }
-
-            if ((i + 1) % resultColumns.durationPerRound === 0) {
-                resultColumns.totalTime += resultColumns.contextChangeDuration
             }
 
             i++
