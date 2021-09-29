@@ -49,9 +49,15 @@ function runSimulations (mode) {
 // Reset variables
 function resetVariables () {
     processes = []
-    resultColumns.averageWaitDuration = 0
-    resultColumns.totalTime = 0
     waitDurations = []
+
+    resultColumns = {
+        mode: resultColumns.mode,
+        durationPerRound: resultColumns.durationPerRound,
+        contextChangeDuration: resultColumns.contextChangeDuration,
+        averageWaitDuration: 0,
+        totalTime: 0
+    }
 }
 // Randomly generate processes
 function createProcesses (processesDurationMin, processesDurationMax) {
@@ -170,7 +176,15 @@ function loadPagesResults (mode) {
     pages[pages.length - 1][pages[pages.length - 1].length - 1].push(totalElementsNumber)
 
     // Add row mode
-    pagesRowModes[pages.length - 1][pages[pages.length - 1].length - 1] = mode
+    let colorIndex = 0
+
+    simulationModes.names.forEach((name, index) => {
+        if (mode === name) {
+            colorIndex = index
+        }
+    })
+
+    pagesRowModes[pages.length - 1][pages[pages.length - 1].length - 1] = colorIndex
 
     // Add data
     Object.values(resultColumns).forEach(data => {
@@ -193,7 +207,7 @@ function loadResultsTable () {
             const column = document.createElement('td')
 
             column.innerText = data
-            column.className = 'border border-sky-600 p-2 border-opacity-40 ' + rowColors[pagesRowModes[currentPage - 1][rowIndex]]
+            column.className = 'border border-sky-600 p-2 border-opacity-40 ' + simulationModes.colors[pagesRowModes[currentPage - 1][rowIndex]]
 
             // Add data to row
 
@@ -279,75 +293,61 @@ function pagesEdge (direction) {
     loadResultsTable()
     updatePager()
 }
-// Create chart data
+// Create line chart data
 function variableRoundDurationChart () {
-    // Round robin
+    simulationModes.names.forEach((mode, index) => {
+        resultColumns.durationPerRound = 0
 
-    resultColumns.contextChangeDuration = 1
+        for (let i = 0; i < 75; i++) {
+            // Reset variables
+            resetVariables()
+            resultColumns.durationPerRound += 3
 
-    resultColumns.durationPerRound = 0
+            // Create processes
+            createProcesses(processesDurationMin, processesDurationMax)
 
-    for (let i = 0; i < 250; i++) {
-        // Reset variables
-        resetVariables()
-        resultColumns.durationPerRound++
+            // Initialize wait durations
+            processes.forEach((process) => {
+                waitDurations.push(0)
+            })
 
-        // Create processes
-        createProcesses(processesDurationMin, processesDurationMax)
+            // Load processes
+            if (mode === 'round-robin') {
+                loadProcessesRoundRobin()
+            } else if (mode === 'fastest-first') {
+                processes.sort()
+                loadProcessesFastestFirst()
+            }
 
-        // Initialize wait durations
-        processes.forEach((process) => {
-            waitDurations.push(0)
-        })
+            // Set average wait time
+            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
 
-        // Load processes
-        loadProcessesRoundRobin()
+            if (index === 0) {
+                lineChartConfig.data.labels.push(resultColumns.durationPerRound)
+            }
 
-        // Set average wait time
-        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
-
-        lineChartConfig.data.labels.push(resultColumns.durationPerRound)
-        lineChartConfig.data.datasets[0].data.push(resultColumns.averageWaitDuration)
-    }
-
-    // Fastest first
-
-    resultColumns.durationPerRound = 0
-
-    for (let i = 0; i < 250; i++) {
-        // Reset variables
-        resetVariables()
-        resultColumns.durationPerRound++
-
-        // Create processes
-        createProcesses(processesDurationMin, processesDurationMax)
-
-        // Initialize wait durations
-        processes.forEach((process) => {
-            waitDurations.push(0)
-        })
-
-        // Load processes
-        processes.sort()
-        loadProcessesFastestFirst()
-
-        // Set average wait time
-        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
-
-        lineChartConfig.data.datasets[1].data.push(resultColumns.averageWaitDuration)
-    }
+            lineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
+        }
+    })
 }
 
 // Constants
 
 const processesNumber = 100
-const processesDurationMin = 1
-const processesDurationMax = 10
+const processesDurationMin = 150
+const processesDurationMax = 175
 const rowsPerTablePage = 10
-const rowColors = []
 
-rowColors['round-robin'] = 'bg-cyan-100'
-rowColors['fastest-first'] = 'bg-indigo-100'
+const simulationModes = {
+    names: [
+        'round-robin',
+        'fastest-first'
+    ],
+    colors: [
+        'bg-cyan-100',
+        'bg-indigo-100'
+    ]
+}
 
 const lineChartConfig = {
     type: 'line',
@@ -367,12 +367,33 @@ const lineChartConfig = {
                 backgroundColor: 'rgb(192, 192, 75)'
             }
         ]
+    },
+    options: {
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Quantum'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'TMA'
+                }
+            }
+        },
+        elements: {
+            line: {
+                tension: 0.25
+            }
+        }
     }
 }
 
 // Variables
 
-const resultColumns = {}
+let resultColumns = {}
 let processes = []
 let processIndex = 0
 let waitDurations = []
@@ -381,7 +402,37 @@ const pagesRowModes = []
 let totalElementsNumber = 0
 let currentPage = 1
 
-// Main
+// Add values to front
 
 document.getElementById('processes-number').innerText = processesNumber
+
+// Create run buttons
+
+const runButtons = document.getElementById('run-buttons')
+
+simulationModes.names.forEach(mode => {
+    const fieldSet = document.createElement('fieldset')
+    fieldSet.className = 'border rounded border-gray-300 p-1'
+
+    const legend = document.createElement('legend')
+    legend.className = 'capitalize text-xs sm:text-sm xl:text-base'
+    legend.innerText = mode.replace('-', ' ')
+
+    const button = document.createElement('button')
+    button.className = 'bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md'
+    button.innerText = 'charger'
+    button.onclick = function () { runSimulations(mode) }
+
+    fieldSet.append(legend)
+    fieldSet.append(button)
+
+    runButtons.append(fieldSet)
+})
+
+// Main
+
+resetVariables()
+
+resultColumns.contextChangeDuration = 1
+
 variableRoundDurationChart()

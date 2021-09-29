@@ -61,17 +61,7 @@
                 
                 <!-- Run buttons -->
                 
-                <div class="flex justify-evenly">
-                    <fieldset class="border rounded border-gray-300 p-1">
-                        <legend class="capitalize text-xs sm:text-sm xl:text-base">round robin</legend>
-                        <button type="submit" onclick="runSimulations('round-robin')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
-                    </fieldset>
-                    
-                    <fieldset class="border rounded border-gray-300 p-1">
-                        <legend class="capitalize text-xs sm:text-sm xl:text-base">fastest first</legend>
-                        <button type="submit" onclick="runSimulations('fastest-first')" class="bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md">charger</button>
-                    </fieldset>
-                </div>
+                <div id="run-buttons" class="flex justify-evenly"></div>
             </section>
             
             <div class="line bg-gray-300 mb-20 w-11/12 mx-auto xl:hidden"></div>
