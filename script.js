@@ -279,6 +279,64 @@ function pagesEdge (direction) {
     loadResultsTable()
     updatePager()
 }
+// Create chart data
+function variableRoundDurationChart () {
+    // Round robin
+
+    resultColumns.contextChangeDuration = 1
+
+    resultColumns.durationPerRound = 0
+
+    for (let i = 0; i < 250; i++) {
+        // Reset variables
+        resetVariables()
+        resultColumns.durationPerRound++
+
+        // Create processes
+        createProcesses(processesDurationMin, processesDurationMax)
+
+        // Initialize wait durations
+        processes.forEach((process) => {
+            waitDurations.push(0)
+        })
+
+        // Load processes
+        loadProcessesRoundRobin()
+
+        // Set average wait time
+        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
+
+        lineChartConfig.data.labels.push(resultColumns.durationPerRound)
+        lineChartConfig.data.datasets[0].data.push(resultColumns.averageWaitDuration)
+    }
+
+    // Fastest first
+
+    resultColumns.durationPerRound = 0
+
+    for (let i = 0; i < 250; i++) {
+        // Reset variables
+        resetVariables()
+        resultColumns.durationPerRound++
+
+        // Create processes
+        createProcesses(processesDurationMin, processesDurationMax)
+
+        // Initialize wait durations
+        processes.forEach((process) => {
+            waitDurations.push(0)
+        })
+
+        // Load processes
+        processes.sort()
+        loadProcessesFastestFirst()
+
+        // Set average wait time
+        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
+
+        lineChartConfig.data.datasets[1].data.push(resultColumns.averageWaitDuration)
+    }
+}
 
 // Constants
 
@@ -294,17 +352,17 @@ rowColors['fastest-first'] = 'bg-indigo-100'
 const lineChartConfig = {
     type: 'line',
     data: {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
+        labels: [],
         datasets: [
             {
                 label: 'Round robin',
-                data: [65, 59, 80, 81, 56, 55, 40],
+                data: [],
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgb(75, 192, 192)'
             },
             {
                 label: 'Fastest first',
-                data: [40, 55, 56, 81, 80, 59, 65],
+                data: [],
                 borderColor: 'rgb(192, 192, 75)',
                 backgroundColor: 'rgb(192, 192, 75)'
             }
@@ -326,3 +384,4 @@ let currentPage = 1
 // Main
 
 document.getElementById('processes-number').innerText = processesNumber
+variableRoundDurationChart()
