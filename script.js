@@ -1,19 +1,52 @@
-// Run simulations
-function runSimulations (mode) {
-    // Get data from inputs
+// Create run buttons
+function createRunButtons () {
+    const runButtons = document.getElementById('run-buttons')
 
-    resultColumns.mode = mode.replace('-', ' ')
-    resultColumns.durationPerRound = parseInt(document.getElementById('round-duration').value)
-    resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
+    simulationModes.names.forEach(mode => {
+        // Field set
 
-    const simulationNumber = parseInt(document.getElementById('simulation-number').value)
+        const fieldSet = document.createElement('fieldset')
+        fieldSet.className = 'border rounded border-gray-300 p-1'
 
-    // If all fields are filled
+        // Legend
 
-    if (!isNaN(resultColumns.durationPerRound) && !isNaN(resultColumns.contextChangeDuration)) {
-        for (let i = 0; i < simulationNumber; i++) {
+        const legend = document.createElement('legend')
+        legend.className = 'capitalize text-xs sm:text-sm xl:text-base'
+        legend.innerText = mode.replace('-', ' ')
+
+        // Button
+
+        const button = document.createElement('button')
+        button.className = 'bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md'
+        button.innerText = 'charger'
+        button.onclick = function () { runSimulations(mode) }
+
+        // Append
+
+        fieldSet.append(legend)
+        fieldSet.append(button)
+        runButtons.append(fieldSet)
+    })
+}
+// Reset variables
+function resetVariables () {
+    processes = []
+    waitDurations = []
+    processIndex = 0
+    resultColumns.averageWaitDuration = 0
+    resultColumns.totalTime = 0
+}
+// Create line chart data
+function createLineChart () {
+    resultColumns.contextChangeDuration = 1
+
+    simulationModes.names.forEach((mode, index) => {
+        resultColumns.quantum = 0
+
+        for (let i = 0; i < 75; i++) {
             // Reset variables
             resetVariables()
+            resultColumns.quantum += 3
 
             // Create processes
             createProcesses(processesDurationMin, processesDurationMax)
@@ -27,37 +60,22 @@ function runSimulations (mode) {
             if (mode === 'round-robin') {
                 loadProcessesRoundRobin()
             } else if (mode === 'fastest-first') {
-                processes.sort()
+                processes.sort((a, b) => a - b)
                 loadProcessesFastestFirst()
             }
 
             // Set average wait time
             resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
 
-            // Load data in pages
-            loadPagesResults(mode)
+            if (index === 0) {
+                lineChartConfig.data.labels.push(resultColumns.quantum)
+            }
+
+            lineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
         }
+    })
 
-        currentPage = pages.length
-
-        // Update front
-
-        loadResultsTable()
-        updatePager()
-    }
-}
-// Reset variables
-function resetVariables () {
-    processes = []
-    waitDurations = []
-
-    resultColumns = {
-        mode: resultColumns.mode,
-        durationPerRound: resultColumns.durationPerRound,
-        contextChangeDuration: resultColumns.contextChangeDuration,
-        averageWaitDuration: 0,
-        totalTime: 0
-    }
+    resultColumns = {}
 }
 // Randomly generate processes
 function createProcesses (processesDurationMin, processesDurationMax) {
@@ -78,22 +96,22 @@ function createProcesses (processesDurationMin, processesDurationMax) {
 }
 // Load processes using round robin method
 function loadProcessesRoundRobin () {
-    // Add context change duration to wait times
+    // Add context change duration to wait duration
 
     for (let i = 0; i < processes.length; i++) {
-        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
+        if (i !== processIndex && processes[i] !== 0 && processes.reduce((a, b) => a + b, 0) !== processes[i]) {
             waitDurations[i] += resultColumns.contextChangeDuration
         }
     }
 
     // Substract the quantum value to the current process
 
-    for (let i = 0; i < resultColumns.durationPerRound; i++) {
+    for (let i = 0; i < resultColumns.quantum; i++) {
         if (processes[processIndex] > 0) {
             processes[processIndex]--
             resultColumns.totalTime++
 
-            // Add wait times
+            // Add wait duration
 
             for (let i = 0; i < processes.length; i++) {
                 if (i !== processIndex && processes[i] !== 0) {
@@ -121,31 +139,100 @@ function loadProcessesRoundRobin () {
 // Load processes using fastest first method
 function loadProcessesFastestFirst () {
     processes.forEach((process, index) => {
-        // Add context change duration to wait times
-
-        for (let i = 0; i < processes.length; i++) {
-            if (i !== index && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
-                waitDurations[i] += resultColumns.contextChangeDuration
-            }
-        }
+        let i = 0
 
         // While process is not loaded
 
         while (processes[index] > 0) {
-            resultColumns.totalTime++
-            processes[index]--
+            // Add wait duration
 
-            // Add wait times
+            const processesSum = processes.reduce((a, b) => a + b)
 
-            for (let i = 0; i < processes.length; i++) {
-                if (i !== index && processes[i] !== 0) {
-                    waitDurations[i]++
+            for (let i2 = 0; i2 < processes.length; i2++) {
+                if (i2 !== index && processes[i2] !== 0 && processesSum !== processes[i2]) {
+                    waitDurations[i2]++
                 }
             }
+
+            // Every quantum duration
+
+            if ((i + 1) % resultColumns.quantum === 0 && processes[index] > 1) {
+                resultColumns.totalTime += resultColumns.contextChangeDuration
+
+                for (let i2 = 0; i2 < processes.length; i2++) {
+                    if (processes[i2] !== 0) {
+                        waitDurations[i2] += resultColumns.contextChangeDuration
+                    }
+                }
+            }
+
+            // When process is loaded
+
+            if (processes[index] === 1) {
+                resultColumns.totalTime += resultColumns.contextChangeDuration
+
+                for (let i2 = 0; i2 < processes.length; i2++) {
+                    if (i2 !== index && processes[i2] !== 0 && processesSum !== processes[i2]) {
+                        waitDurations[i2] += resultColumns.contextChangeDuration
+                    }
+                }
+            }
+
+            processes[index]--
+            resultColumns.totalTime++
+
+            i++
+        }
+    })
+}
+// Run simulations
+function runSimulations (mode) {
+    // Get data from inputs
+
+    resultColumns.mode = mode.replace('-', ' ')
+    resultColumns.quantum = parseInt(document.getElementById('round-duration').value)
+    resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
+
+    const simulationNumber = parseInt(document.getElementById('simulation-number').value)
+
+    // If all fields are filled
+
+    if (!isNaN(resultColumns.quantum) && !isNaN(resultColumns.contextChangeDuration)) {
+        for (let i = 0; i < simulationNumber; i++) {
+            // Reset variables
+            resetVariables()
+
+            // Create processes
+            createProcesses(processesDurationMin, processesDurationMax)
+
+            // Initialize wait durations
+            processes.forEach((process) => {
+                waitDurations.push(0)
+            })
+
+            // Load processes
+            if (mode === 'round-robin') {
+                loadProcessesRoundRobin()
+            } else if (mode === 'fastest-first') {
+                processes.sort((a, b) => a - b)
+                loadProcessesFastestFirst()
+            }
+
+            // Set average wait time
+            console.log(waitDurations)
+            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
+
+            // Load data in pages
+            loadPagesResults(mode)
         }
 
-        resultColumns.totalTime += resultColumns.contextChangeDuration
-    })
+        currentPage = pages.length
+
+        // Update front
+
+        loadResultsTable()
+        updatePager()
+    }
 }
 // Load results in form of pages
 function loadPagesResults (mode) {
@@ -293,43 +380,6 @@ function pagesEdge (direction) {
     loadResultsTable()
     updatePager()
 }
-// Create line chart data
-function variableRoundDurationChart () {
-    simulationModes.names.forEach((mode, index) => {
-        resultColumns.durationPerRound = 0
-
-        for (let i = 0; i < 75; i++) {
-            // Reset variables
-            resetVariables()
-            resultColumns.durationPerRound += 3
-
-            // Create processes
-            createProcesses(processesDurationMin, processesDurationMax)
-
-            // Initialize wait durations
-            processes.forEach((process) => {
-                waitDurations.push(0)
-            })
-
-            // Load processes
-            if (mode === 'round-robin') {
-                loadProcessesRoundRobin()
-            } else if (mode === 'fastest-first') {
-                processes.sort()
-                loadProcessesFastestFirst()
-            }
-
-            // Set average wait time
-            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
-
-            if (index === 0) {
-                lineChartConfig.data.labels.push(resultColumns.durationPerRound)
-            }
-
-            lineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
-        }
-    })
-}
 
 // Constants
 
@@ -357,14 +407,14 @@ const lineChartConfig = {
             {
                 label: 'Round robin',
                 data: [],
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgb(75, 192, 192)'
+                borderColor: 'rgb(182, 225, 229)',
+                backgroundColor: 'rgb(182, 225, 229)'
             },
             {
                 label: 'Fastest first',
                 data: [],
-                borderColor: 'rgb(192, 192, 75)',
-                backgroundColor: 'rgb(192, 192, 75)'
+                borderColor: 'rgb(199, 206, 230)',
+                backgroundColor: 'rgb(199, 206, 230)'
             }
         ]
     },
@@ -406,33 +456,7 @@ let currentPage = 1
 
 document.getElementById('processes-number').innerText = processesNumber
 
-// Create run buttons
-
-const runButtons = document.getElementById('run-buttons')
-
-simulationModes.names.forEach(mode => {
-    const fieldSet = document.createElement('fieldset')
-    fieldSet.className = 'border rounded border-gray-300 p-1'
-
-    const legend = document.createElement('legend')
-    legend.className = 'capitalize text-xs sm:text-sm xl:text-base'
-    legend.innerText = mode.replace('-', ' ')
-
-    const button = document.createElement('button')
-    button.className = 'bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md'
-    button.innerText = 'charger'
-    button.onclick = function () { runSimulations(mode) }
-
-    fieldSet.append(legend)
-    fieldSet.append(button)
-
-    runButtons.append(fieldSet)
-})
-
 // Main
 
-resetVariables()
-
-resultColumns.contextChangeDuration = 1
-
-variableRoundDurationChart()
+createRunButtons()
+createLineChart()
