@@ -40,25 +40,14 @@
                 
                 <!-- Fields -->
                 
-                <!-- <form class="mb-10">
-                    <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
-                        <div class="mb-3 sm:flex form-group">
-                            <label for="round-duration" class="mb-2 md:mb-0">Durée par passage ( Quantum )</label>
-                            <input type="number" id="round-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="5">
-                        </div>
+                <form class="mb-10">
+                    <fieldset class="py-4 px-5 shadow-md bg-white border rounded border-gray-300 border-opacity-40">
                         <div class="sm:flex form-group">
-                            <label for="context-change-duration" class="mb-2 md:mb-0">Durée de changement contexte</label>
-                            <input type="number" id="context-change-duration" class="w-4/12 sm:w-3/12 xl:w-3/12 md:w-2/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
+                            <label for="quantum-duration" class="mb-2 md:mb-0">Quantum</label>
+                            <input type="number" id="quantum-duration" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600">
                         </div>
                     </fieldset>
-                    
-                    <fieldset class="p-3 shadow-md py-4 px-5 bg-white border rounded border-gray-300 border-opacity-40">
-                        <div class="sm:flex form-group">
-                            <label for="simulation-number" class="mb-2 md:mb-0">Nombre de simulations</label>
-                            <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
-                        </div>
-                    </fieldset>
-                </form> -->
+                </form>
                 
                 <!-- Run buttons -->
                 
@@ -78,10 +67,9 @@
                             <tr class="border-2 border-sky-600 border-opacity-40">
                                 <th class="border-2 border-sky-600 p-2 border-opacity-40 w-1/12">#</th>
                                 <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="mode">mode</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée par passage">durée par passage</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de changement de contexte">durée de changement de contexte</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="temps moyen d'attente">temps moyen d'attente ( TMA )</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="temps de chargement moyen">temps de chargement moyen</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-3/12" title="quantum">quantum</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="TMA">TMA</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-4/12" title="temps de chargement moyen">temps de chargement moyen</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -112,7 +100,11 @@
         <!-- Charts -->
         
         <section class="w-11/12 xl:w-full mx-auto">
-            <canvas id="lineChart" height="100px"></canvas>
+            <canvas id="tmaLineChart" height="100px"></canvas>
+
+            <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto"></div>
+
+            <canvas id="avgDurationLineChart" height="100px"></canvas>
         </section>
     </main>
 
@@ -120,9 +112,14 @@
     
     <script src="script.js"></script>
     <script>
-        const myChart = new Chart(
-            document.getElementById('lineChart'),
-            lineChartConfig
+        const tmaLineChart = new Chart(
+            document.getElementById('tmaLineChart'),
+            TmaLineChartConfig
+        )
+
+        const avgDurationLineChart = new Chart(
+            document.getElementById('avgDurationLineChart'),
+            avgDurationLineChartConfig
         )
     </script>
 </body>

@@ -28,32 +28,33 @@ function createRunButtons () {
         runButtons.append(fieldSet)
     })
 }
-// Reset variables
-function resetVariables () {
-    processes = []
-    waitDurations = []
-    processIndex = 0
-    resultColumns.averageWaitDuration = 0
-    resultColumns.totalTime = 0
+// Load params.json
+function loadJson () {
+    $.ajaxSetup({
+        async: false
+    })
+
+    $.getJSON('params.json', data => {
+        jsonParams = data
+    })
 }
 // Create line chart data
-function createLineChart () {
-    resultColumns.contextChangeDuration = jsonParams.contextChange
-
+function createLineCharts () {
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
 
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 31; i++) {
             // Reset variables
             resetVariables()
             resultColumns.quantum += 1
 
-            // Load processes
-            jsonParams.processes.forEach(process => {
+            // Initialize processes
+            jsonParams.processList.forEach(process => {
                 processes.push(process.duration)
             })
 
-            processes.forEach((process) => {
+            // Initialize wait durations
+            processes.forEach(() => {
                 waitDurations.push(0)
             })
 
@@ -65,43 +66,38 @@ function createLineChart () {
                 loadProcessesFastestFirst()
             }
 
-            // Set average wait time
-            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
+            // Set average wait and total time
+            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
+            resultColumns.totalTime = (resultColumns.totalTime / processes.length)
 
+            // Load data in charts
             if (index === 0) {
-                lineChartConfig.data.labels.push(resultColumns.quantum)
+                TmaLineChartConfig.data.labels.push(resultColumns.quantum)
+                avgDurationLineChartConfig.data.labels.push(resultColumns.quantum)
             }
 
-            lineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
+            TmaLineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
+            avgDurationLineChartConfig.data.datasets[index].data.push(resultColumns.totalTime)
         }
     })
 
     resultColumns = {}
 }
-// Randomly generate processes
-function createProcesses (processesDurationMin, processesDurationMax) {
-    // let processesDuration = 0
-
-    // Randomly generate processes
-
-    for (let i = 0; i < processesNumber; i++) {
-        const duration = Math.round(Math.random() * (processesDurationMax - processesDurationMin) + processesDurationMin)
-
-        processes.push(duration)
-        // processesDuration += duration
-    }
-
-    // Get average processes loading time
-
-    // resultColumns.averageProcessDuration = (processesDuration / processesNumber).toFixed(2)
+// Reset variables
+function resetVariables () {
+    processes = []
+    waitDurations = []
+    processIndex = 0
+    resultColumns.averageWaitDuration = 0
+    resultColumns.totalTime = 0
 }
 // Load processes using round robin method
 function loadProcessesRoundRobin () {
     // Add context change duration to wait duration
 
     for (let i = 0; i < processes.length; i++) {
-        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur !== processes[i])) {
-            waitDurations[i] += resultColumns.contextChangeDuration
+        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
+            waitDurations[i] += jsonParams.contextSwapDuration
         }
     }
 
@@ -132,7 +128,7 @@ function loadProcessesRoundRobin () {
             processIndex++
         }
 
-        resultColumns.totalTime += resultColumns.contextChangeDuration
+        resultColumns.totalTime += jsonParams.contextSwapDuration
         loadProcessesRoundRobin()
     }
 }
@@ -157,11 +153,11 @@ function loadProcessesFastestFirst () {
             // Every quantum duration
 
             if ((i + 1) % resultColumns.quantum === 0 && processes[index] > 1) {
-                resultColumns.totalTime += resultColumns.contextChangeDuration
+                resultColumns.totalTime += jsonParams.contextSwapDuration
 
                 for (let i2 = 0; i2 < processes.length; i2++) {
                     if (processes[i2] !== 0) {
-                        waitDurations[i2] += resultColumns.contextChangeDuration
+                        waitDurations[i2] += jsonParams.contextSwapDuration
                     }
                 }
             }
@@ -169,17 +165,20 @@ function loadProcessesFastestFirst () {
             // When process is loaded
 
             if (processes[index] === 1) {
-                resultColumns.totalTime += resultColumns.contextChangeDuration
+                resultColumns.totalTime += jsonParams.contextSwapDuration
 
                 for (let i2 = 0; i2 < processes.length; i2++) {
                     if (i2 !== index && processes[i2] !== 0 && processesSum !== processes[i2]) {
-                        waitDurations[i2] += resultColumns.contextChangeDuration
+                        waitDurations[i2] += jsonParams.contextSwapDuration
                     }
                 }
             }
 
             processes[index]--
-            resultColumns.totalTime++
+
+            if (processes.reduce((a, b) => a + b) !== 0) {
+                resultColumns.totalTime++
+            }
 
             i++
         }
@@ -190,22 +189,21 @@ function runSimulations (mode) {
     // Get data from inputs
 
     resultColumns.mode = mode.replace('-', ' ')
-    resultColumns.quantum = jsonParams.quantum
-    resultColumns.contextChangeDuration = jsonParams.contextChange
+    resultColumns.quantum = parseInt(document.getElementById('quantum-duration').value)
 
     // If all fields are filled
 
-    if (!isNaN(resultColumns.quantum) && !isNaN(resultColumns.contextChangeDuration)) {
+    if (!isNaN(resultColumns.quantum)) {
         // Reset variables
         resetVariables()
 
-        // Load processes
-        jsonParams.processes.forEach(process => {
+        // Initialize processes
+        jsonParams.processList.forEach(process => {
             processes.push(process.duration)
         })
 
         // Initialize wait durations
-        processes.forEach((process) => {
+        processes.forEach(() => {
             waitDurations.push(0)
         })
 
@@ -217,9 +215,9 @@ function runSimulations (mode) {
             loadProcessesFastestFirst()
         }
 
-        // Set average wait time
-        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
-        resultColumns.totalTime = (resultColumns.totalTime / processes.length).toFixed(2)
+        // Set average wait and total time
+        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
+        resultColumns.totalTime = (resultColumns.totalTime / processes.length)
 
         // Load data in pages
         loadPagesResults(mode)
@@ -378,22 +376,9 @@ function pagesEdge (direction) {
     loadResultsTable()
     updatePager()
 }
-// Load params.json
-function loadJson () {
-    $.ajaxSetup({
-        async: false
-    })
-
-    $.getJSON('params.json', data => {
-        jsonParams = data
-    })
-}
 
 // Constants
 
-const processesNumber = 100
-const processesDurationMin = 150
-const processesDurationMax = 175
 const rowsPerTablePage = 10
 let jsonParams = null
 
@@ -408,7 +393,7 @@ const simulationModes = {
     ]
 }
 
-const lineChartConfig = {
+const TmaLineChartConfig = {
     type: 'line',
     data: {
         labels: [],
@@ -416,14 +401,14 @@ const lineChartConfig = {
             {
                 label: 'Round robin',
                 data: [],
-                borderColor: 'rgb(182, 225, 229)',
-                backgroundColor: 'rgb(182, 225, 229)'
+                borderColor: 'rgb(157, 200, 204)',
+                backgroundColor: 'rgb(157, 200, 204)'
             },
             {
                 label: 'Fastest first',
                 data: [],
-                borderColor: 'rgb(199, 206, 230)',
-                backgroundColor: 'rgb(199, 206, 230)'
+                borderColor: 'rgb(174, 181, 205)',
+                backgroundColor: 'rgb(174, 181, 205)'
             }
         ]
     },
@@ -450,6 +435,48 @@ const lineChartConfig = {
     }
 }
 
+const avgDurationLineChartConfig = {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [
+            {
+                label: 'Round robin',
+                data: [],
+                borderColor: 'rgb(157, 200, 204)',
+                backgroundColor: 'rgb(157, 200, 204)'
+            },
+            {
+                label: 'Fastest first',
+                data: [],
+                borderColor: 'rgb(174, 181, 205)',
+                backgroundColor: 'rgb(174, 181, 205)'
+            }
+        ]
+    },
+    options: {
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Quantum'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Temps de chargement moyen'
+                }
+            }
+        },
+        elements: {
+            line: {
+                tension: 0.2
+            }
+        }
+    }
+}
+
 // Variables
 
 let resultColumns = {}
@@ -461,12 +488,10 @@ const pagesRowModes = []
 let totalElementsNumber = 0
 let currentPage = 1
 
-// Add values to front
-
-document.getElementById('processes-number').innerText = processesNumber
-
 // Main
 
-loadJson()
 createRunButtons()
-createLineChart()
+loadJson()
+document.getElementById('processes-number').innerText = jsonParams.processList.length
+document.getElementById('quantum-duration').value = jsonParams.quantumDuration
+createLineCharts()
