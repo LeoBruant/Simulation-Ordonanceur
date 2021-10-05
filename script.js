@@ -19,7 +19,7 @@ function createRunButtons () {
         const button = document.createElement('button')
         button.className = 'bg-sky-600 rounded hover:bg-sky-700 text-gray-50 py-2 px-10 transition duration-250 capitalize shadow-md'
         button.innerText = 'charger'
-        button.onclick = function () { runSimulations(mode) }
+        button.onclick = function () { runSimulation(mode) }
 
         // Append
 
@@ -48,27 +48,8 @@ function createLineCharts () {
             resetVariables()
             resultColumns.quantum += 1
 
-            // Initialize processes
-            jsonParams.processList.forEach(process => {
-                processes.push(process.duration)
-            })
-
-            // Initialize wait durations
-            processes.forEach(() => {
-                waitDurations.push(0)
-            })
-
-            // Load processes
-            if (mode === 'round-robin') {
-                loadProcessesRoundRobin()
-            } else if (mode === 'fastest-first') {
-                processes.sort((a, b) => a - b)
-                loadProcessesFastestFirst()
-            }
-
-            // Set average wait and total time
-            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
-            resultColumns.totalTime = (resultColumns.totalTime / processes.length)
+            // Load data
+            load(mode)
 
             // Load data in charts
             if (index === 0) {
@@ -91,10 +72,39 @@ function resetVariables () {
     resultColumns.averageWaitDuration = 0
     resultColumns.totalTime = 0
 }
+// Load data
+function load (mode) {
+    // Initialize processes
+    jsonParams.processList.forEach(process => {
+        if (mode === 'round-robin') {
+            if (process.startTime === 0) {
+                processes.push(process.duration)
+            }
+        } else if (mode === 'fastest-first') {
+            processes.push(process.duration)
+        }
+    })
+
+    // Initialize wait durations
+    processes.forEach(() => {
+        waitDurations.push(0)
+    })
+
+    // Load processes
+    if (mode === 'round-robin') {
+        loadProcessesRoundRobin()
+    } else if (mode === 'fastest-first') {
+        processes.sort((acc, cur) => acc - cur)
+        loadProcessesFastestFirst()
+    }
+
+    // Set average wait and total time
+    resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
+    resultColumns.totalTime = (resultColumns.totalTime / processes.length)
+}
 // Load processes using round robin method
 function loadProcessesRoundRobin () {
-    // Add context change duration to wait duration
-
+    // Add context swap duration to wait duration
     for (let i = 0; i < processes.length; i++) {
         if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
             waitDurations[i] += jsonParams.contextSwapDuration
@@ -107,8 +117,15 @@ function loadProcessesRoundRobin () {
             processes[processIndex]--
             resultColumns.totalTime++
 
-            // Add wait duration
+            // Add new processes
+            jsonParams.processList.forEach(process => {
+                if (resultColumns.totalTime === process.startTime) {
+                    processes.splice(processIndex + 1, 0, process.duration)
+                    waitDurations.splice(processIndex + 1, 0, 0)
+                }
+            })
 
+            // Add wait duration
             for (let i = 0; i < processes.length; i++) {
                 if (i !== processIndex && processes[i] !== 0) {
                     waitDurations[i]++
@@ -118,7 +135,6 @@ function loadProcessesRoundRobin () {
     }
 
     // If processes are not all loaded
-
     if (processes.reduce((acc, cur) => acc + cur) !== 0) {
         // Go back to first process or keep going
 
@@ -128,7 +144,19 @@ function loadProcessesRoundRobin () {
             processIndex++
         }
 
-        resultColumns.totalTime += jsonParams.contextSwapDuration
+        for (let i = 0; i < jsonParams.contextSwapDuration; i++) {
+            // Add context swap duration to total time
+            resultColumns.totalTime++
+
+            // Add new processes
+            jsonParams.processList.forEach(process => {
+                if (resultColumns.totalTime === process.startTime) {
+                    processes.splice(processIndex + 1, 0, process.duration)
+                    waitDurations.splice(processIndex + 1, 0, 0)
+                }
+            })
+        }
+
         loadProcessesRoundRobin()
     }
 }
@@ -176,7 +204,7 @@ function loadProcessesFastestFirst () {
 
             processes[index]--
 
-            if (processes.reduce((a, b) => a + b) !== 0) {
+            if (processes.reduce((acc, cur) => acc + cur) !== 0) {
                 resultColumns.totalTime++
             }
 
@@ -185,7 +213,7 @@ function loadProcessesFastestFirst () {
     })
 }
 // Run simulations
-function runSimulations (mode) {
+function runSimulation (mode) {
     // Get data from inputs
 
     resultColumns.mode = mode.replace('-', ' ')
@@ -197,27 +225,8 @@ function runSimulations (mode) {
         // Reset variables
         resetVariables()
 
-        // Initialize processes
-        jsonParams.processList.forEach(process => {
-            processes.push(process.duration)
-        })
-
-        // Initialize wait durations
-        processes.forEach(() => {
-            waitDurations.push(0)
-        })
-
-        // Load processes
-        if (mode === 'round-robin') {
-            loadProcessesRoundRobin()
-        } else if (mode === 'fastest-first') {
-            processes.sort((a, b) => a - b)
-            loadProcessesFastestFirst()
-        }
-
-        // Set average wait and total time
-        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
-        resultColumns.totalTime = (resultColumns.totalTime / processes.length)
+        // Load data
+        load(mode)
 
         // Load data in pages
         loadPagesResults(mode)
@@ -379,7 +388,7 @@ function pagesEdge (direction) {
 
 // Constants
 
-const rowsPerTablePage = 10
+const rowsPerTablePage = 4
 let jsonParams = null
 
 const simulationModes = {
