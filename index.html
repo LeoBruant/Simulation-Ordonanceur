@@ -14,6 +14,7 @@
     <title>Simulateur d'ordonanceur</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 </head>
 <body class="bg-warmGray-50">
     <header class="mb-9 md:mb-12 xl:mb-15 shadow-lg">
@@ -39,7 +40,7 @@
                 
                 <!-- Fields -->
                 
-                <form class="mb-10">
+                <!-- <form class="mb-10">
                     <fieldset class="py-4 px-5 shadow-md mb-10 bg-white border rounded border-gray-300 border-opacity-40">
                         <div class="mb-3 sm:flex form-group">
                             <label for="round-duration" class="mb-2 md:mb-0">Durée par passage ( Quantum )</label>
@@ -57,7 +58,7 @@
                             <input type="number" id="simulation-number" class="w-4/12 sm:w-3/12 md:w-2/12 xl:w-3/12 sm:ml-5 rounded border-gray-300 border-opacity-40 shadow-md focus:ring-sky-600" value="1">
                         </div>
                     </fieldset>
-                </form>
+                </form> -->
                 
                 <!-- Run buttons -->
                 
@@ -80,7 +81,7 @@
                                 <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée par passage">durée par passage</th>
                                 <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="durée de changement de contexte">durée de changement de contexte</th>
                                 <th class="border border-sky-600 p-2 border-opacity-40 truncate" title="temps moyen d'attente">temps moyen d'attente ( TMA )</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="durée totale">durée totale</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="temps de chargement moyen">temps de chargement moyen</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

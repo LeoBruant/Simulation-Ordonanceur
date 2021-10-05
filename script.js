@@ -38,20 +38,21 @@ function resetVariables () {
 }
 // Create line chart data
 function createLineChart () {
-    resultColumns.contextChangeDuration = 1
+    resultColumns.contextChangeDuration = jsonParams.contextChange
 
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
 
-        for (let i = 0; i < 75; i++) {
+        for (let i = 0; i < 25; i++) {
             // Reset variables
             resetVariables()
-            resultColumns.quantum += 3
+            resultColumns.quantum += 1
 
-            // Create processes
-            createProcesses(processesDurationMin, processesDurationMax)
+            // Load processes
+            jsonParams.processes.forEach(process => {
+                processes.push(process.duration)
+            })
 
-            // Initialize wait durations
             processes.forEach((process) => {
                 waitDurations.push(0)
             })
@@ -99,13 +100,12 @@ function loadProcessesRoundRobin () {
     // Add context change duration to wait duration
 
     for (let i = 0; i < processes.length; i++) {
-        if (i !== processIndex && processes[i] !== 0 && processes.reduce((a, b) => a + b, 0) !== processes[i]) {
+        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur !== processes[i])) {
             waitDurations[i] += resultColumns.contextChangeDuration
         }
     }
 
     // Substract the quantum value to the current process
-
     for (let i = 0; i < resultColumns.quantum; i++) {
         if (processes[processIndex] > 0) {
             processes[processIndex]--
@@ -190,41 +190,39 @@ function runSimulations (mode) {
     // Get data from inputs
 
     resultColumns.mode = mode.replace('-', ' ')
-    resultColumns.quantum = parseInt(document.getElementById('round-duration').value)
-    resultColumns.contextChangeDuration = parseInt(document.getElementById('context-change-duration').value)
-
-    const simulationNumber = parseInt(document.getElementById('simulation-number').value)
+    resultColumns.quantum = jsonParams.quantum
+    resultColumns.contextChangeDuration = jsonParams.contextChange
 
     // If all fields are filled
 
     if (!isNaN(resultColumns.quantum) && !isNaN(resultColumns.contextChangeDuration)) {
-        for (let i = 0; i < simulationNumber; i++) {
-            // Reset variables
-            resetVariables()
+        // Reset variables
+        resetVariables()
 
-            // Create processes
-            createProcesses(processesDurationMin, processesDurationMax)
+        // Load processes
+        jsonParams.processes.forEach(process => {
+            processes.push(process.duration)
+        })
 
-            // Initialize wait durations
-            processes.forEach((process) => {
-                waitDurations.push(0)
-            })
+        // Initialize wait durations
+        processes.forEach((process) => {
+            waitDurations.push(0)
+        })
 
-            // Load processes
-            if (mode === 'round-robin') {
-                loadProcessesRoundRobin()
-            } else if (mode === 'fastest-first') {
-                processes.sort((a, b) => a - b)
-                loadProcessesFastestFirst()
-            }
-
-            // Set average wait time
-            console.log(waitDurations)
-            resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
-
-            // Load data in pages
-            loadPagesResults(mode)
+        // Load processes
+        if (mode === 'round-robin') {
+            loadProcessesRoundRobin()
+        } else if (mode === 'fastest-first') {
+            processes.sort((a, b) => a - b)
+            loadProcessesFastestFirst()
         }
+
+        // Set average wait time
+        resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length).toFixed(2)
+        resultColumns.totalTime = (resultColumns.totalTime / processes.length).toFixed(2)
+
+        // Load data in pages
+        loadPagesResults(mode)
 
         currentPage = pages.length
 
@@ -380,6 +378,16 @@ function pagesEdge (direction) {
     loadResultsTable()
     updatePager()
 }
+// Load params.json
+function loadJson () {
+    $.ajaxSetup({
+        async: false
+    })
+
+    $.getJSON('params.json', data => {
+        jsonParams = data
+    })
+}
 
 // Constants
 
@@ -387,6 +395,7 @@ const processesNumber = 100
 const processesDurationMin = 150
 const processesDurationMax = 175
 const rowsPerTablePage = 10
+let jsonParams = null
 
 const simulationModes = {
     names: [
@@ -435,7 +444,7 @@ const lineChartConfig = {
         },
         elements: {
             line: {
-                tension: 0.25
+                tension: 0.2
             }
         }
     }
@@ -458,5 +467,6 @@ document.getElementById('processes-number').innerText = processesNumber
 
 // Main
 
+loadJson()
 createRunButtons()
 createLineChart()
