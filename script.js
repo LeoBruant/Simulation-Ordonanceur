@@ -76,11 +76,7 @@ function resetVariables () {
 function load (mode) {
     // Initialize processes
     jsonParams.processList.forEach(process => {
-        if (mode === 'round-robin') {
-            if (process.startTime === 0) {
-                processes.push(process.duration)
-            }
-        } else if (mode === 'fastest-first') {
+        if (process.startTime === 0) {
             processes.push(process.duration)
         }
     })
@@ -93,6 +89,7 @@ function load (mode) {
     // Load processes
     if (mode === 'round-robin') {
         loadProcessesRoundRobin()
+        processIndex = 0
     } else if (mode === 'fastest-first') {
         processes.sort((acc, cur) => acc - cur)
         loadProcessesFastestFirst()
@@ -162,27 +159,38 @@ function loadProcessesRoundRobin () {
 }
 // Load processes using fastest first method
 function loadProcessesFastestFirst () {
-    processes.forEach((process, index) => {
+    while (processIndex < processes.length) {
         let i = 0
 
         // While process is not loaded
-
-        while (processes[index] > 0) {
+        while (processes[processIndex] > 0) {
             // Add wait duration
-
             const processesSum = processes.reduce((a, b) => a + b)
 
             for (let i2 = 0; i2 < processes.length; i2++) {
-                if (i2 !== index && processes[i2] !== 0 && processesSum !== processes[i2]) {
+                if (i2 !== processIndex && processes[i2] !== 0 && processesSum !== processes[i2]) {
                     waitDurations[i2]++
                 }
             }
 
             // Every quantum duration
+            if ((i + 1) % resultColumns.quantum === 0 && processes[processIndex] > 1) {
+                for (let i2 = 0; i2 < jsonParams.contextSwapDuration; i2++) {
+                    resultColumns.totalTime++
 
-            if ((i + 1) % resultColumns.quantum === 0 && processes[index] > 1) {
-                resultColumns.totalTime += jsonParams.contextSwapDuration
+                    // Add new processes
+                    jsonParams.processList.forEach(process => {
+                        if (resultColumns.totalTime === process.startTime) {
+                            processes.splice(processIndex + 1, 0, process.duration)
+                            waitDurations.splice(processIndex + 1, 0, 0)
+                        }
+                    })
+                }
 
+                // Sort processes
+                processes.sort((acc, cur) => acc - cur)
+
+                // Add context swap duration to wait durations
                 for (let i2 = 0; i2 < processes.length; i2++) {
                     if (processes[i2] !== 0) {
                         waitDurations[i2] += jsonParams.contextSwapDuration
@@ -191,26 +199,53 @@ function loadProcessesFastestFirst () {
             }
 
             // When process is loaded
+            if (processes[processIndex] === 1) {
+                for (let i2 = 0; i2 < jsonParams.contextSwapDuration; i2++) {
+                    resultColumns.totalTime++
 
-            if (processes[index] === 1) {
-                resultColumns.totalTime += jsonParams.contextSwapDuration
+                    // Add new processes
+                    jsonParams.processList.forEach(process => {
+                        if (resultColumns.totalTime === process.startTime) {
+                            processes.splice(processIndex + 1, 0, process.duration)
+                            waitDurations.splice(processIndex + 1, 0, 0)
+                        }
+                    })
+                }
 
+                // Sort processes
+                processes.sort((acc, cur) => acc - cur)
+
+                // Add context swap duration to wait durations
                 for (let i2 = 0; i2 < processes.length; i2++) {
-                    if (i2 !== index && processes[i2] !== 0 && processesSum !== processes[i2]) {
+                    if (i2 !== processIndex && processes[i2] !== 0 && processesSum !== processes[i2]) {
                         waitDurations[i2] += jsonParams.contextSwapDuration
                     }
                 }
             }
 
-            processes[index]--
+            processes[processIndex]--
 
+            // If processes are not all loaded
             if (processes.reduce((acc, cur) => acc + cur) !== 0) {
                 resultColumns.totalTime++
+
+                // Add new processes
+                jsonParams.processList.forEach(process => {
+                    if (resultColumns.totalTime === process.startTime) {
+                        processes.splice(processIndex + 1, 0, process.duration)
+                        waitDurations.splice(processIndex + 1, 0, 0)
+                    }
+                })
+
+                // Sort processes
+                processes.sort((acc, cur) => acc - cur)
             }
 
             i++
         }
-    })
+
+        processIndex++
+    }
 }
 // Run simulations
 function runSimulation (mode) {
