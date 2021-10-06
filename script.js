@@ -40,10 +40,21 @@ function loadJson () {
 }
 // Create line chart data
 function createLineCharts () {
+    // Get max process duration
+    let max = 0
+
+    jsonParams.processList.forEach(process => {
+        if (process.duration > max) {
+            max = process.duration
+        }
+    })
+
+    maxProcessDuration = max
+
+    // Get charts data
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
-
-        for (let i = 0; i < 31; i++) {
+        for (let i = 0; i < maxProcessDuration + 1 / 2 * maxProcessDuration; i++) {
             // Reset variables
             resetVariables()
             resultColumns.quantum += 1
@@ -67,7 +78,7 @@ function createLineCharts () {
 // Reset variables
 function resetVariables () {
     processes = []
-    waitDurations = []
+    waitDuration = 0
     processIndex = 0
     resultColumns.averageWaitDuration = 0
     resultColumns.totalTime = 0
@@ -81,170 +92,122 @@ function load (mode) {
         }
     })
 
-    // Initialize wait durations
-    processes.forEach(() => {
-        waitDurations.push(0)
-    })
-
     // Load processes
-    if (mode === 'round-robin') {
-        loadProcessesRoundRobin()
-        processIndex = 0
-    } else if (mode === 'fastest-first') {
+    if (mode === 'fastest-first') {
         processes.sort((acc, cur) => acc - cur)
-        loadProcessesFastestFirst()
     }
 
+    loadProcesses(mode)
+
     // Set average wait and total time
-    resultColumns.averageWaitDuration = (waitDurations.reduce((acc, cur) => acc + cur) / processes.length)
+    resultColumns.averageWaitDuration = (waitDuration / processes.length)
     resultColumns.totalTime = (resultColumns.totalTime / processes.length)
 }
-// Load processes using round robin method
-function loadProcessesRoundRobin () {
-    // Add context swap duration to wait duration
-    for (let i = 0; i < processes.length; i++) {
-        if (i !== processIndex && processes[i] !== 0 && processes.reduce((acc, cur) => acc + cur) !== processes[i]) {
-            waitDurations[i] += jsonParams.contextSwapDuration
+// Load processes
+function loadProcesses (mode) {
+    // For quantum duration
+    for (let i = 0; i < resultColumns.quantum; i++) {
+        // Substract the quantum value to the current process
+        if (processes[processIndex] > 0) {
+            processes[processIndex]--
+        }
+
+        resultColumns.totalTime++
+
+        // Add wait duration
+        for (let i2 = 0; i2 < processes.length; i2++) {
+            if (i2 !== processIndex && processes[i2] !== 0) {
+                waitDuration++
+            }
+        }
+
+        // Add new processes
+        jsonParams.processList.forEach(process => {
+            if (resultColumns.totalTime === process.startTime) {
+                processes.splice(processIndex + 1, 0, process.duration)
+            }
+        })
+
+        // Sort processes
+        if (mode === 'fastest-first') {
+            processes.sort((acc, cur) => acc - cur)
         }
     }
 
-    // Substract the quantum value to the current process
-    for (let i = 0; i < resultColumns.quantum; i++) {
-        if (processes[processIndex] > 0) {
-            processes[processIndex]--
+    // Add context swap duration
+    if ((processes.reduce((acc, cur) => acc + cur) !== 0 && processes.length < jsonParams.processList.length) || (processes.reduce((acc, cur) => acc + cur) === 0 && processes.length === jsonParams.processList.length)) {
+        for (let i = 0; i < jsonParams.contextSwapDuration; i++) {
+            // Add to total time
             resultColumns.totalTime++
+
+            // Add wait duration
+            for (let i2 = 0; i2 < processes.length; i2++) {
+                if (i2 !== processIndex && processes[i2] !== 0) {
+                    waitDuration++
+                }
+            }
 
             // Add new processes
             jsonParams.processList.forEach(process => {
                 if (resultColumns.totalTime === process.startTime) {
                     processes.splice(processIndex + 1, 0, process.duration)
-                    waitDurations.splice(processIndex + 1, 0, 0)
                 }
             })
+
+            // Sort processes
+            if (mode === 'fastest-first') {
+                processes.sort((acc, cur) => acc - cur)
+            }
+        }
+    }
+
+    // While all processes are not here yet
+    let found = false
+
+    while (!found) {
+        if (processes.length < jsonParams.processList.length && processes.reduce((acc, cur) => acc + cur) === 0) {
+            // Add to total time
+            resultColumns.totalTime++
 
             // Add wait duration
             for (let i = 0; i < processes.length; i++) {
                 if (i !== processIndex && processes[i] !== 0) {
-                    waitDurations[i]++
+                    waitDuration++
                 }
             }
-        }
-    }
-
-    // If processes are not all loaded
-    if (processes.reduce((acc, cur) => acc + cur) !== 0) {
-        // Go back to first process or keep going
-
-        if (processIndex === processes.length - 1) {
-            processIndex = 0
-        } else {
-            processIndex++
-        }
-
-        for (let i = 0; i < jsonParams.contextSwapDuration; i++) {
-            // Add context swap duration to total time
-            resultColumns.totalTime++
 
             // Add new processes
             jsonParams.processList.forEach(process => {
                 if (resultColumns.totalTime === process.startTime) {
                     processes.splice(processIndex + 1, 0, process.duration)
-                    waitDurations.splice(processIndex + 1, 0, 0)
                 }
             })
-        }
 
-        loadProcessesRoundRobin()
+            // Sort processes
+            if (mode === 'fastest-first') {
+                processes.sort((acc, cur) => acc - cur)
+            }
+        } else {
+            found = true
+        }
     }
-}
-// Load processes using fastest first method
-function loadProcessesFastestFirst () {
-    while (processIndex < processes.length) {
-        let i = 0
 
-        // While process is not loaded
-        while (processes[processIndex] > 0) {
-            // Add wait duration
-            const processesSum = processes.reduce((a, b) => a + b)
-
-            for (let i2 = 0; i2 < processes.length; i2++) {
-                if (i2 !== processIndex && processes[i2] !== 0 && processesSum !== processes[i2]) {
-                    waitDurations[i2]++
-                }
+    // Go to next process
+    if (processes.length <= jsonParams.processList.length && processes.reduce((acc, cur) => acc + cur) !== 0) {
+        // Go back to first process or keep going
+        if (mode === 'round-robin') {
+            if (processIndex === processes.length - 1) {
+                processIndex = 0
+            } else {
+                processIndex++
             }
-
-            // Every quantum duration
-            if ((i + 1) % resultColumns.quantum === 0 && processes[processIndex] > 1) {
-                for (let i2 = 0; i2 < jsonParams.contextSwapDuration; i2++) {
-                    resultColumns.totalTime++
-
-                    // Add new processes
-                    jsonParams.processList.forEach(process => {
-                        if (resultColumns.totalTime === process.startTime) {
-                            processes.splice(processIndex + 1, 0, process.duration)
-                            waitDurations.splice(processIndex + 1, 0, 0)
-                        }
-                    })
-                }
-
-                // Sort processes
-                processes.sort((acc, cur) => acc - cur)
-
-                // Add context swap duration to wait durations
-                for (let i2 = 0; i2 < processes.length; i2++) {
-                    if (processes[i2] !== 0) {
-                        waitDurations[i2] += jsonParams.contextSwapDuration
-                    }
-                }
+        } else if (mode === 'fastest-first') {
+            if (processes[processIndex] === 0) {
+                processIndex++
             }
-
-            // When process is loaded
-            if (processes[processIndex] === 1) {
-                for (let i2 = 0; i2 < jsonParams.contextSwapDuration; i2++) {
-                    resultColumns.totalTime++
-
-                    // Add new processes
-                    jsonParams.processList.forEach(process => {
-                        if (resultColumns.totalTime === process.startTime) {
-                            processes.splice(processIndex + 1, 0, process.duration)
-                            waitDurations.splice(processIndex + 1, 0, 0)
-                        }
-                    })
-                }
-
-                // Sort processes
-                processes.sort((acc, cur) => acc - cur)
-
-                // Add context swap duration to wait durations
-                for (let i2 = 0; i2 < processes.length; i2++) {
-                    if (i2 !== processIndex && processes[i2] !== 0 && processesSum !== processes[i2]) {
-                        waitDurations[i2] += jsonParams.contextSwapDuration
-                    }
-                }
-            }
-
-            processes[processIndex]--
-
-            // If processes are not all loaded
-            if (processes.reduce((acc, cur) => acc + cur) !== 0) {
-                resultColumns.totalTime++
-
-                // Add new processes
-                jsonParams.processList.forEach(process => {
-                    if (resultColumns.totalTime === process.startTime) {
-                        processes.splice(processIndex + 1, 0, process.duration)
-                        waitDurations.splice(processIndex + 1, 0, 0)
-                    }
-                })
-
-                // Sort processes
-                processes.sort((acc, cur) => acc - cur)
-            }
-
-            i++
         }
 
-        processIndex++
+        loadProcesses(mode)
     }
 }
 // Run simulations
@@ -425,6 +388,7 @@ function pagesEdge (direction) {
 
 const rowsPerTablePage = 4
 let jsonParams = null
+let maxProcessDuration = null
 
 const simulationModes = {
     names: [
@@ -473,7 +437,7 @@ const TmaLineChartConfig = {
         },
         elements: {
             line: {
-                tension: 0.2
+                tension: 0
             }
         }
     }
@@ -515,7 +479,7 @@ const avgDurationLineChartConfig = {
         },
         elements: {
             line: {
-                tension: 0.2
+                tension: 0
             }
         }
     }
@@ -526,7 +490,7 @@ const avgDurationLineChartConfig = {
 let resultColumns = {}
 let processes = []
 let processIndex = 0
-let waitDurations = []
+let waitDuration = 0
 const pages = []
 const pagesRowModes = []
 let totalElementsNumber = 0
