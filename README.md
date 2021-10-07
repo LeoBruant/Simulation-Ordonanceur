@@ -10,8 +10,8 @@
 
 Open a terminal in the chosen directory, and run these commands :
 
-- git clone https://github.com/LeoBruant/Simulation-Ordonanceur.git
+- `git clone https://github.com/LeoBruant/Simulation-Ordonanceur.git`
 
-- cd Simulation-Ordonanceur-main
+- `cd Simulation-Ordonanceur-main`
 
-- npm i
+- `npm i`
