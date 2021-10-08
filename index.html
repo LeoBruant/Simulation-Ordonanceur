@@ -99,12 +99,16 @@
         
         <!-- Charts -->
         
-        <section class="w-11/12 xl:w-full mx-auto">
-            <canvas id="tmaLineChart" height="100px"></canvas>
+        <section class="xl:flex justify-between">
+            <div class="xl:w-6/12 pr-5">
+                <canvas id="tmaLineChart" height="250px"></canvas>
+            </div>
 
-            <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto"></div>
+            <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto xl:hidden"></div>
 
-            <canvas id="avgDurationLineChart" height="100px"></canvas>
+            <div class="xl:w-6/12 pl-5">
+                <canvas id="avgDurationLineChart" height="250px"></canvas>
+            </div>
         </section>
     </main>
 

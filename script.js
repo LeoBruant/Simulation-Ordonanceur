@@ -54,7 +54,7 @@ function createLineCharts () {
     // Get charts data
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
-        for (let i = 0; i < maxProcessDuration + 1 / 2 * maxProcessDuration; i++) {
+        for (let i = 0; i < maxProcessDuration + 1; i++) {
             // Reset variables
             resetVariables()
             resultColumns.quantum += 1
@@ -451,14 +451,14 @@ const avgDurationLineChartConfig = {
             {
                 label: 'Round robin',
                 data: [],
-                borderColor: 'rgb(157, 200, 204)',
-                backgroundColor: 'rgb(157, 200, 204)'
+                borderColor: 'rgb(158, 201, 255)',
+                backgroundColor: 'rgb(158, 201, 255)'
             },
             {
                 label: 'Fastest first',
                 data: [],
-                borderColor: 'rgb(174, 181, 205)',
-                backgroundColor: 'rgb(174, 181, 205)'
+                borderColor: 'rgb(174, 181, 255)',
+                backgroundColor: 'rgb(174, 181, 255)'
             }
         ]
     },
