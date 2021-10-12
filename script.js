@@ -54,7 +54,7 @@ function createLineCharts () {
     // Get charts data
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
-        for (let i = 0; i < maxProcessDuration + 2; i++) {
+        for (let i = 0; i < maxProcessDuration + 1; i++) {
             // Reset variables
             resetVariables()
             resultColumns.quantum += 1
@@ -135,8 +135,8 @@ function loadProcesses (mode) {
         // Substract the quantum value to the current process
         if (processes[processIndex] > 0) {
             processes[processIndex]--
-        } else {
-            if (endTimes[processIndex] === null) {
+
+            if (processes[processIndex] === 0 && endTimes[processIndex] === null) {
                 endTimes[processIndex] = resultColumns.totalTime + 1
             }
         }
@@ -595,7 +595,7 @@ const avgTripTimeLineChartConfig = {
             y: {
                 title: {
                     display: true,
-                    text: 'Temps de séjour moyen'
+                    text: 'TMS'
                 }
             }
         },
