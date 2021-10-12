@@ -511,7 +511,7 @@ const avgIdleTimeLineChartConfig = {
             y: {
                 title: {
                     display: true,
-                    text: 'Temps moyen d\'attente'
+                    text: 'Temps moyen à ne rien faire'
                 }
             }
         },
