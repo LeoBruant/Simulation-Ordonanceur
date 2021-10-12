@@ -54,7 +54,7 @@ function createLineCharts () {
     // Get charts data
     simulationModes.names.forEach((mode, index) => {
         resultColumns.quantum = 0
-        for (let i = 0; i < maxProcessDuration + 1; i++) {
+        for (let i = 0; i < maxProcessDuration + 2; i++) {
             // Reset variables
             resetVariables()
             resultColumns.quantum += 1
@@ -64,12 +64,21 @@ function createLineCharts () {
 
             // Load data in charts
             if (index === 0) {
-                TmaLineChartConfig.data.labels.push(resultColumns.quantum)
+                tmaLineChartConfig.data.labels.push(resultColumns.quantum)
+                avgIdleTimeLineChartConfig.data.labels.push(resultColumns.quantum)
                 avgDurationLineChartConfig.data.labels.push(resultColumns.quantum)
+                avgTripTimeLineChartConfig.data.labels.push(resultColumns.quantum)
             }
 
-            TmaLineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
+            tmaLineChartConfig.data.datasets[index].data.push(resultColumns.averageWaitDuration)
+            avgIdleTimeLineChartConfig.data.datasets[index].data.push(resultColumns.idleTime)
             avgDurationLineChartConfig.data.datasets[index].data.push(resultColumns.totalTime)
+
+            jsonParams.processList.forEach((process, index) => {
+                endTimes[index] = endTimes[index] - process.startTime
+            })
+
+            avgTripTimeLineChartConfig.data.datasets[index].data.push(endTimes.reduce((acc, cur) => acc + cur) / processes.length)
         }
     })
 
@@ -81,8 +90,11 @@ function resetVariables () {
     waitDuration = 0
     processIndex = 0
     resultColumns.averageWaitDuration = 0
+    resultColumns.idleTime = 0
     resultColumns.totalTime = 0
     wait = true
+    idleTime = 0
+    endTimes = []
 }
 // Load data
 function load (mode) {
@@ -91,6 +103,7 @@ function load (mode) {
         if (process.startTime === 0) {
             processes.push(process.duration)
         }
+        endTimes.push(null)
     })
 
     // Load processes
@@ -102,7 +115,14 @@ function load (mode) {
 
     // Set average wait and total time
     resultColumns.averageWaitDuration = (waitDuration / processes.length)
+    resultColumns.idleTime = (idleTime / processes.length)
     resultColumns.totalTime = (resultColumns.totalTime / processes.length)
+
+    jsonParams.processList.forEach((process, index) => {
+        endTimes[index] = endTimes[index] - process.startTime
+    })
+
+    resultColumns.tripTime = endTimes.reduce((acc, cur) => acc + cur) / processes.length
 }
 // Load processes
 function loadProcesses (mode) {
@@ -115,16 +135,21 @@ function loadProcesses (mode) {
         // Substract the quantum value to the current process
         if (processes[processIndex] > 0) {
             processes[processIndex]--
+        } else {
+            if (endTimes[processIndex] === null) {
+                endTimes[processIndex] = resultColumns.totalTime + 1
+            }
         }
 
         resultColumns.totalTime++
 
         // Add wait duration
-        if (wait) {
-            for (let i2 = 0; i2 < processes.length; i2++) {
-                if (i2 !== processIndex && processes[i2] !== 0) {
+        for (let i2 = 0; i2 < processes.length; i2++) {
+            if (i2 !== processIndex && processes[i2] !== 0) {
+                if (wait) {
                     waitDuration++
                 }
+                idleTime++
             }
         }
 
@@ -148,11 +173,12 @@ function loadProcesses (mode) {
             resultColumns.totalTime++
 
             // Add wait duration
-            if (wait) {
-                for (let i2 = 0; i2 < processes.length; i2++) {
-                    if (i2 !== processIndex && processes[i2] !== 0) {
+            for (let i2 = 0; i2 < processes.length; i2++) {
+                if (i2 !== processIndex && processes[i2] !== 0) {
+                    if (wait) {
                         waitDuration++
                     }
+                    idleTime++
                 }
             }
 
@@ -179,11 +205,12 @@ function loadProcesses (mode) {
             resultColumns.totalTime++
 
             // Add wait duration
-            if (wait) {
-                for (let i = 0; i < processes.length; i++) {
-                    if (i !== processIndex && processes[i] !== 0) {
+            for (let i = 0; i < processes.length; i++) {
+                if (i !== processIndex && processes[i] !== 0) {
+                    if (wait) {
                         waitDuration++
                     }
+                    idleTime++
                 }
             }
 
@@ -412,7 +439,7 @@ const simulationModes = {
     ]
 }
 
-const TmaLineChartConfig = {
+const tmaLineChartConfig = {
     type: 'line',
     data: {
         labels: [],
@@ -443,6 +470,48 @@ const TmaLineChartConfig = {
                 title: {
                     display: true,
                     text: 'TMA'
+                }
+            }
+        },
+        elements: {
+            line: {
+                tension: 0
+            }
+        }
+    }
+}
+
+const avgIdleTimeLineChartConfig = {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [
+            {
+                label: 'Round robin',
+                data: [],
+                borderColor: 'rgb(158, 201, 255)',
+                backgroundColor: 'rgb(158, 201, 255)'
+            },
+            {
+                label: 'Fastest first',
+                data: [],
+                borderColor: 'rgb(174, 181, 255)',
+                backgroundColor: 'rgb(174, 181, 255)'
+            }
+        ]
+    },
+    options: {
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Quantum'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Temps moyen d\'attente'
                 }
             }
         },
@@ -496,6 +565,48 @@ const avgDurationLineChartConfig = {
     }
 }
 
+const avgTripTimeLineChartConfig = {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [
+            {
+                label: 'Round robin',
+                data: [],
+                borderColor: 'rgb(158, 201, 255)',
+                backgroundColor: 'rgb(158, 201, 255)'
+            },
+            {
+                label: 'Fastest first',
+                data: [],
+                borderColor: 'rgb(174, 181, 255)',
+                backgroundColor: 'rgb(174, 181, 255)'
+            }
+        ]
+    },
+    options: {
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Quantum'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Temps de séjour moyen'
+                }
+            }
+        },
+        elements: {
+            line: {
+                tension: 0
+            }
+        }
+    }
+}
+
 // Variables
 
 let resultColumns = {}
@@ -507,6 +618,8 @@ const pagesRowModes = []
 let totalElementsNumber = 0
 let currentPage = 1
 let wait = true
+let idleTime = 0
+let endTimes = []
 
 // Main
 

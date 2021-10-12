@@ -66,10 +66,12 @@
                         <thead>
                             <tr class="border-2 border-sky-600 border-opacity-40">
                                 <th class="border-2 border-sky-600 p-2 border-opacity-40 w-1/12">#</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="mode">mode</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-3/12" title="quantum">quantum</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-3/12" title="mode">mode</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="quantum">quantum</th>
                                 <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="TMA">TMA</th>
-                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-4/12" title="temps de chargement moyen">temps de chargement moyen</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="Temps moyen d'attente">Temps moyen d'attente</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="temps de chargement moyen">temps de chargement moyen</th>
+                                <th class="border border-sky-600 p-2 border-opacity-40 truncate w-2/12" title="temps de séjour moyen">temps de séjour moyen</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -101,13 +103,31 @@
         
         <section class="xl:flex justify-between">
             <div class="xl:w-6/12 pr-5">
+                <h3 class="mb-2">TMA</h3>
                 <canvas id="tmaLineChart" height="250px"></canvas>
             </div>
 
             <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto xl:hidden"></div>
 
             <div class="xl:w-6/12 pl-5">
+                <h3 class="mb-2">Temps moyen d'attente</h3>
+                <canvas id="avgIdleTimeLineChart" height="250px"></canvas>
+            </div>
+        </section>
+
+        <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto xl:hidden"></div>
+
+        <section class="xl:flex justify-between">
+            <div class="xl:w-6/12 pl-5">
+                <h3 class="mb-2">Temps de chargement moyen</h3>
                 <canvas id="avgDurationLineChart" height="250px"></canvas>
+            </div>
+
+            <div class="line bg-gray-300 my-20 w-11/12 xl:w-full mx-auto xl:hidden"></div>
+
+            <div class="xl:w-6/12 pl-5">
+                <h3 class="mb-2">Temps de séjour moyen</h3>
+                <canvas id="avgTripTimeLineChart" height="250px"></canvas>
             </div>
         </section>
     </main>
@@ -116,14 +136,25 @@
     
     <script src="script.js"></script>
     <script>
+        // TMA
         const tmaLineChart = new Chart(
             document.getElementById('tmaLineChart'),
-            TmaLineChartConfig
+            tmaLineChartConfig
         )
-
+        // Average idle time
+        const avgIdleLineChart = new Chart(
+            document.getElementById('avgIdleTimeLineChart'),
+            avgIdleTimeLineChartConfig
+        )
+        // Average duration
         const avgDurationLineChart = new Chart(
             document.getElementById('avgDurationLineChart'),
             avgDurationLineChartConfig
+        )
+        // Average trip time
+        const avgTripTimeLineChart = new Chart(
+            document.getElementById('avgTripTimeLineChart'),
+            avgTripTimeLineChartConfig
         )
     </script>
 </body>
