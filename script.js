@@ -82,6 +82,7 @@ function resetVariables () {
     processIndex = 0
     resultColumns.averageWaitDuration = 0
     resultColumns.totalTime = 0
+    wait = true
 }
 // Load data
 function load (mode) {
@@ -105,6 +106,10 @@ function load (mode) {
 }
 // Load processes
 function loadProcesses (mode) {
+    if (processIndex === jsonParams.processList.length - 1) {
+        wait = false
+    }
+
     // For quantum duration
     for (let i = 0; i < resultColumns.quantum; i++) {
         // Substract the quantum value to the current process
@@ -115,9 +120,11 @@ function loadProcesses (mode) {
         resultColumns.totalTime++
 
         // Add wait duration
-        for (let i2 = 0; i2 < processes.length; i2++) {
-            if (i2 !== processIndex && processes[i2] !== 0) {
-                waitDuration++
+        if (wait) {
+            for (let i2 = 0; i2 < processes.length; i2++) {
+                if (i2 !== processIndex && processes[i2] !== 0) {
+                    waitDuration++
+                }
             }
         }
 
@@ -141,9 +148,11 @@ function loadProcesses (mode) {
             resultColumns.totalTime++
 
             // Add wait duration
-            for (let i2 = 0; i2 < processes.length; i2++) {
-                if (i2 !== processIndex && processes[i2] !== 0) {
-                    waitDuration++
+            if (wait) {
+                for (let i2 = 0; i2 < processes.length; i2++) {
+                    if (i2 !== processIndex && processes[i2] !== 0) {
+                        waitDuration++
+                    }
                 }
             }
 
@@ -170,9 +179,11 @@ function loadProcesses (mode) {
             resultColumns.totalTime++
 
             // Add wait duration
-            for (let i = 0; i < processes.length; i++) {
-                if (i !== processIndex && processes[i] !== 0) {
-                    waitDuration++
+            if (wait) {
+                for (let i = 0; i < processes.length; i++) {
+                    if (i !== processIndex && processes[i] !== 0) {
+                        waitDuration++
+                    }
                 }
             }
 
@@ -495,6 +506,7 @@ const pages = []
 const pagesRowModes = []
 let totalElementsNumber = 0
 let currentPage = 1
+let wait = true
 
 // Main
 
