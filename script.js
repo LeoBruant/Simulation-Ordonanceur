@@ -12,7 +12,7 @@ function createRunButtons () {
 
         const legend = document.createElement('legend')
         legend.className = 'capitalize text-xs sm:text-sm xl:text-base'
-        legend.innerText = mode.replace('-', ' ')
+        legend.innerText = mode.replace(/-/g, ' ')
 
         // Button
 
@@ -107,7 +107,7 @@ function load (mode) {
     })
 
     // Load processes
-    if (mode === 'fastest-first') {
+    if (mode === 'small-job-first') {
         processes.sort((acc, cur) => acc - cur)
     }
 
@@ -161,7 +161,7 @@ function loadProcesses (mode) {
         })
 
         // Sort processes
-        if (mode === 'fastest-first') {
+        if (mode === 'small-job-first') {
             processes.sort((acc, cur) => acc - cur)
         }
     }
@@ -190,7 +190,7 @@ function loadProcesses (mode) {
             })
 
             // Sort processes
-            if (mode === 'fastest-first') {
+            if (mode === 'small-job-first') {
                 processes.sort((acc, cur) => acc - cur)
             }
         }
@@ -222,7 +222,7 @@ function loadProcesses (mode) {
             })
 
             // Sort processes
-            if (mode === 'fastest-first') {
+            if (mode === 'small-job-first') {
                 processes.sort((acc, cur) => acc - cur)
             }
         } else {
@@ -239,7 +239,7 @@ function loadProcesses (mode) {
             } else {
                 processIndex++
             }
-        } else if (mode === 'fastest-first') {
+        } else if (mode === 'small-job-first') {
             if (processes[processIndex] === 0) {
                 processIndex++
             }
@@ -252,7 +252,7 @@ function loadProcesses (mode) {
 function runSimulation (mode) {
     // Get data from inputs
 
-    resultColumns.mode = mode.replace('-', ' ')
+    resultColumns.mode = mode.replace(/-/g, ' ')
     resultColumns.quantum = parseInt(document.getElementById('quantum-duration').value)
 
     // If all fields are filled
@@ -431,7 +431,7 @@ let maxProcessDuration = null
 const simulationModes = {
     names: [
         'round-robin',
-        'fastest-first'
+        'small-job-first'
     ],
     colors: [
         'bg-cyan-100',
@@ -451,7 +451,7 @@ const tmaLineChartConfig = {
                 backgroundColor: 'rgb(158, 201, 255)'
             },
             {
-                label: 'Fastest first',
+                label: 'small job first',
                 data: [],
                 borderColor: 'rgb(174, 181, 255)',
                 backgroundColor: 'rgb(174, 181, 255)'
@@ -493,7 +493,7 @@ const avgIdleTimeLineChartConfig = {
                 backgroundColor: 'rgb(158, 201, 255)'
             },
             {
-                label: 'Fastest first',
+                label: 'Small job first',
                 data: [],
                 borderColor: 'rgb(174, 181, 255)',
                 backgroundColor: 'rgb(174, 181, 255)'
@@ -535,7 +535,7 @@ const avgDurationLineChartConfig = {
                 backgroundColor: 'rgb(158, 201, 255)'
             },
             {
-                label: 'Fastest first',
+                label: 'Small job first',
                 data: [],
                 borderColor: 'rgb(174, 181, 255)',
                 backgroundColor: 'rgb(174, 181, 255)'
@@ -577,7 +577,7 @@ const avgTripTimeLineChartConfig = {
                 backgroundColor: 'rgb(158, 201, 255)'
             },
             {
-                label: 'Fastest first',
+                label: 'Small job first',
                 data: [],
                 borderColor: 'rgb(174, 181, 255)',
                 backgroundColor: 'rgb(174, 181, 255)'
